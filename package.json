@@ -1,6 +1,6 @@
 {
   "name": "skillhawk",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Zero-dependency security scanner for AI agent skills, MCP configs, and agent instructions.",
   "type": "module",
   "bin": {
