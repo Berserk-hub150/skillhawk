@@ -80,6 +80,15 @@ See **[BENCHMARK.md](BENCHMARK.md)** for methodology, confusion matrix, known fa
 
 > The benchmark is synthetic and transparent, not an independent security audit. Real-world accuracy can differ.
 
+### Help push recall from 93.75% toward 100%
+
+Two benchmark misses are deliberately kept public as beginner-friendly contribution targets:
+
+- [#5 Detect PowerShell `iwr | iex` download-and-execute chains](https://github.com/Berserk-hub150/skillhawk/issues/5)
+- [#6 Detect Python `requests` + `exec` remote-code execution chains](https://github.com/Berserk-hub150/skillhawk/issues/6)
+
+Fix one, add regression tests, run `npm run benchmark`, and open a PR. This is one of the fastest ways to make a measurable contribution to SkillHawk.
+
 ## What SkillHawk catches
 
 ```text
