@@ -14,9 +14,13 @@ inputs:
     required: false
     default: high
   format:
-    description: Output format (text or json)
+    description: Output format (text, json, or sarif)
     required: false
     default: text
+  sarif-file:
+    description: Optional path to write SARIF 2.1.0 results for GitHub code scanning
+    required: false
+    default: ''
 outputs:
   score:
     description: Security score from 0 to 100
@@ -24,6 +28,8 @@ outputs:
     description: Highest detected severity
   findings:
     description: Number of findings
+  sarif-file:
+    description: SARIF output path when sarif-file is configured
 runs:
   using: node20
   main: src/action.js
