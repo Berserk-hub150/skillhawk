@@ -78,9 +78,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: Berserk-hub150/skillhawk@v0.2.0
+      - uses: Berserk-hub150/skillhawk@v0.2.1
         with:
           path: .
           fail-on: high
