@@ -129,7 +129,7 @@ function summarize(findings, filesScanned, skippedFiles, targetLabel) {
 
   return {
     tool: 'SkillHawk',
-    version: '0.1.0',
+    version: '0.2.0',
     target: targetLabel,
     filesScanned,
     skippedFiles,
