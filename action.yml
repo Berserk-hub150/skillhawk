@@ -1,5 +1,5 @@
 name: SkillHawk AI Agent Security Scan
-description: Scan SKILL.md, MCP configs, Claude Code and AI agent instructions for secrets, prompt injection, shell execution and dangerous commands.
+description: Scan SKILL.md, MCP configs and AI agent instructions for secrets, prompt injection and dangerous shell commands.
 author: Berserk-hub150
 branding:
   icon: shield
