@@ -22,6 +22,8 @@ The benchmark is intentionally transparent: it includes easy positives, benign n
 | Specificity | **87.50%** |
 | Accuracy | **91.67%** |
 
+This snapshot is reproduced by the repository CI benchmark job, not hand-entered from an unverified local run.
+
 ## Reproduce it
 
 ```bash
