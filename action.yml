@@ -31,5 +31,5 @@ outputs:
   sarif-file:
     description: SARIF output path when sarif-file is configured
 runs:
-  using: node20
+  using: node24
   main: src/action.js
