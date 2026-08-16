@@ -13,14 +13,14 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node: [20, 22]
+        node: [20, 22, 24]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
       - run: npm test
       - run: node src/cli.js scan examples/safe-skill --fail-on high --no-color
-      - if: matrix.os == 'ubuntu-latest' && matrix.node == 20
+      - if: matrix.os == 'ubuntu-latest' && matrix.node == 24
         run: npm run benchmark
