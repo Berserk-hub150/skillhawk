@@ -12,7 +12,9 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 [![Good First Issues](https://img.shields.io/github/issues/Berserk-hub150/skillhawk/good%20first%20issue?label=good%20first%20issues)](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22)
 
-**Zero dependencies · Never executes the target · GitHub Action · Explainable findings**
+**48-fixture synthetic benchmark · 93.75% precision · 93.75% recall · 12 explainable rules**
+
+**Zero dependencies · Never executes the target · GitHub Action · SARIF / Code Scanning**
 
 ⭐ If SkillHawk is useful, star the repo. Want to contribute? Pick a [good first issue](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) and fork it.
 
@@ -36,13 +38,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: Berserk-hub150/skillhawk@v0.1.1
+      - uses: Berserk-hub150/skillhawk@v0.2.0
         with:
           path: .
           fail-on: high
 ```
 
 That is enough to scan the repository on pushes and pull requests.
+
+## Reproducible benchmark
+
+SkillHawk includes a public synthetic benchmark with deliberately difficult positive and negative cases instead of reporting a perfect score on easy fixtures.
+
+| Metric | Result |
+|---|---:|
+| Fixtures | **48** |
+| Malicious / suspicious | **32** |
+| Safe | **16** |
+| Rules | **12** |
+| Precision | **93.75%** |
+| Recall | **93.75%** |
+| F1 | **93.75%** |
+| False positives | **2** |
+| False negatives | **2** |
+
+Reproduce it locally:
+
+```bash
+npm run benchmark
+```
+
+Machine-readable results:
+
+```bash
+npm run benchmark -- --json
+```
+
+See **[BENCHMARK.md](BENCHMARK.md)** for methodology, confusion matrix, known false positives, known false negatives, and limitations.
+
+> The benchmark is synthetic and transparent, not an independent security audit. Real-world accuracy can differ.
 
 ## What SkillHawk catches
 
@@ -93,10 +127,16 @@ Scan a public GitHub repository:
 node src/cli.js scan https://github.com/owner/repo
 ```
 
-Machine-readable output:
+Machine-readable JSON output:
 
 ```bash
 node src/cli.js scan . --json
+```
+
+SARIF output for GitHub Code Scanning:
+
+```bash
+node src/cli.js scan . --sarif > skillhawk.sarif
 ```
 
 Fail when a high-or-worse finding exists:
@@ -122,14 +162,17 @@ No API key is required. SkillHawk performs static analysis and **never executes 
 - **Agent-native:** focuses on security patterns that matter in agent instructions.
 - **Zero dependencies:** small and easy to audit.
 - **Explainable:** every finding has a rule ID, severity, source line and remediation.
+- **Benchmarkable:** labeled fixtures expose both false positives and false negatives.
 - **CI-ready:** fail builds by severity threshold.
-- **GitHub-ready:** install it directly as an Action.
+- **GitHub-ready:** install it directly as an Action and emit SARIF for code scanning.
 - **Fast:** scans text-based agent files without executing them.
 - **Contributor-friendly:** detection rules are intentionally easy to extend and test.
 
 ## Contributing
 
 The easiest contribution is a detection rule plus two tests: one suspicious example that should trigger and one safe example that should not.
+
+Benchmark improvements are especially welcome: add realistic hard positives and hard negatives rather than only easy examples.
 
 **Start here:** [good first issues](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) · [help wanted](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22)
 
