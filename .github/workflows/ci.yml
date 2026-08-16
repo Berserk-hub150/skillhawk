@@ -22,3 +22,5 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm test
       - run: node src/cli.js scan examples/safe-skill --fail-on high --no-color
+      - if: matrix.os == 'ubuntu-latest' && matrix.node == 20
+        run: npm run benchmark
