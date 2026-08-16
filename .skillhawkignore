@@ -1,0 +1,6 @@
+# SkillHawk contains intentionally dangerous strings in its own rule definitions,
+# tests, demo fixtures, and README. Ignore those when dogfooding the repository.
+src/rules.js
+test/
+examples/unsafe-skill/
+README.md

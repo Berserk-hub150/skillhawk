@@ -1,0 +1,35 @@
+{
+  "name": "skillhawk",
+  "version": "0.1.0",
+  "description": "Zero-dependency security scanner for AI agent skills, MCP configs, and agent instructions.",
+  "type": "module",
+  "bin": {
+    "skillhawk": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "scan": "node src/cli.js scan .",
+    "demo": "node src/cli.js scan examples/unsafe-skill"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "ai-agents",
+    "agent-skills",
+    "mcp",
+    "security",
+    "static-analysis",
+    "claude-code",
+    "codex"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Berserk-hub150/skillhawk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Berserk-hub150/skillhawk/issues"
+  },
+  "homepage": "https://github.com/Berserk-hub150/skillhawk#readme"
+}

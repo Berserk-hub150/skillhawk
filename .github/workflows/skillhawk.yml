@@ -1,0 +1,20 @@
+name: SkillHawk
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan repository
+        uses: ./
+        with:
+          path: .
+          fail-on: critical

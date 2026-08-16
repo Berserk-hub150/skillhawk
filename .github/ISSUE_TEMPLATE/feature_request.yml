@@ -1,0 +1,16 @@
+name: Detection rule request
+description: Suggest a new agent-security rule or integration.
+title: "[Rule]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: pattern
+    attributes:
+      label: What behavior should SkillHawk detect?
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Safe and unsafe examples
+      description: Provide minimal examples when possible.

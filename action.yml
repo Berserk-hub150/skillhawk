@@ -1,0 +1,29 @@
+name: SkillHawk Security Scan
+description: Scan AI agent skills, MCP configs, and agent instructions for suspicious security patterns.
+author: Berserk-hub150
+branding:
+  icon: shield
+  color: orange
+inputs:
+  path:
+    description: Path to scan
+    required: false
+    default: .
+  fail-on:
+    description: Minimum severity that fails the action (critical, high, medium, low, none)
+    required: false
+    default: high
+  format:
+    description: Output format (text or json)
+    required: false
+    default: text
+outputs:
+  score:
+    description: Security score from 0 to 100
+  risk:
+    description: Highest detected severity
+  findings:
+    description: Number of findings
+runs:
+  using: node20
+  main: src/action.js
