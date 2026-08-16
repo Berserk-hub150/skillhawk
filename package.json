@@ -9,7 +9,8 @@
   "scripts": {
     "test": "node --test",
     "scan": "node src/cli.js scan .",
-    "demo": "node src/cli.js scan examples/unsafe-skill"
+    "demo": "node src/cli.js scan examples/unsafe-skill",
+    "benchmark": "node benchmark/run.js"
   },
   "engines": {
     "node": ">=18"
