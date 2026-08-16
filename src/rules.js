@@ -92,10 +92,18 @@ export const RULES = [
     pattern: /\bnpx\s+(?:-y\s+)?(?![^\s@]+@(?:\d|[a-f0-9]{7,40}\b))[@a-z0-9_.\/-]+\b/i,
   },
   {
+
     id: 'SH012',
     severity: 'low',
     title: 'Wildcard or recursive access',
     advice: 'Restrict file access to the smallest directory or glob the skill actually needs.',
     pattern: /(?:\bfind\s+[\/~.]\s+|Get-ChildItem\b[^\n]{0,140}-(?:Recurse|r)\b|glob\s*\([^\n]{0,100}\*\*)/i,
+  },
+{
+    id: 'SH013',
+    severity: 'high',
+    title: 'Remote content executed via Python exec/eval',
+    advice: 'Never exec or eval content fetched over the network. Parse and validate it explicitly instead.',
+    pattern: /(?:\bexec\s*\([^)]{0,200}requests\.(?:get|post|request)\s*\(|requests\.(?:get|post|request)\s*\([^\n]{0,200}\)[^\n]{0,60}\.(?:text|content)\b[\s\S]{0,150}\b(?:exec|eval)\s*\()/i,
   }
 ];
