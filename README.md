@@ -7,9 +7,12 @@
 **Zero-dependency security scanner for Agent Skills, `SKILL.md`, MCP configs, and agent instructions.**
 
 [![CI](https://github.com/Berserk-hub150/skillhawk/actions/workflows/ci.yml/badge.svg)](https://github.com/Berserk-hub150/skillhawk/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Berserk-hub150/skillhawk)](https://github.com/Berserk-hub150/skillhawk/releases/latest)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+[![Good First Issues](https://img.shields.io/github/issues/Berserk-hub150/skillhawk/good%20first%20issue?label=good%20first%20issues)](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22)
+
+**⭐ If this catches something useful, star the repo. Want to help? Pick a [good first issue](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) and fork it.**
 
 </div>
 
@@ -38,6 +41,16 @@ Scanned: 1 files
 Security score: 52/100 (F)  Risk: CRITICAL
 ```
 
+## Try it in 30 seconds
+
+```bash
+git clone https://github.com/Berserk-hub150/skillhawk.git
+cd skillhawk
+node src/cli.js scan https://github.com/Berserk-hub150/skillhawk
+```
+
+No API key. No external dependencies. The target is **never executed**.
+
 ## Why SkillHawk?
 
 - **Agent-native:** focuses on the things AI agents and skills actually do.
@@ -46,6 +59,7 @@ Security score: 52/100 (F)  Risk: CRITICAL
 - **CI-ready:** fail a build on `critical`, `high`, `medium`, or `low` findings.
 - **GitHub-ready:** use SkillHawk as a JavaScript Action with no build bundle.
 - **Fast:** scans text-based agent files without executing them.
+- **Hackable:** small rule set and tests make it easy for first-time contributors to add detections.
 
 ## Quick start
 
@@ -136,6 +150,8 @@ False positives matter. If a rule is noisy, open an issue with a minimal safe ex
 ## Contributing
 
 New contributors are welcome. The easiest contribution is a detection rule plus two tests: one malicious-looking example that should trigger, and one safe example that should not.
+
+**Start here:** [good first issues](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) · [help wanted](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22)
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](ROADMAP.md).
 
