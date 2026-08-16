@@ -12,7 +12,7 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 [![Good First Issues](https://img.shields.io/github/issues/Berserk-hub150/skillhawk/good%20first%20issue?label=good%20first%20issues)](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22)
 
-**48-fixture synthetic benchmark · 93.75% precision · 93.75% recall · 12 explainable rules**
+**CI-verified: 48-fixture synthetic benchmark · 93.75% precision · 93.75% recall · 12 explainable rules**
 
 **Zero dependencies · Never executes the target · GitHub Action · SARIF / Code Scanning**
 
@@ -61,6 +61,8 @@ SkillHawk includes a public synthetic benchmark with deliberately difficult posi
 | F1 | **93.75%** |
 | False positives | **2** |
 | False negatives | **2** |
+
+These numbers are reproduced by the GitHub Actions CI benchmark job.
 
 Reproduce it locally:
 
