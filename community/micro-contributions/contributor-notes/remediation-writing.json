@@ -1,4 +1,4 @@
 {
   "topic": "Remediation writing",
-  "tip": "Give users a clear, specific action they can take to fix the finding instead of using vague or alarming language."
+  "tip": "Remediation advice should specify the exact configuration key or permission flag to adjust and provide a concrete before-and-after snippet rather than vague instructions."
 }
