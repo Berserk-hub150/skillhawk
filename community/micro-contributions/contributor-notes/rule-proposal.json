@@ -1,2 +1,4 @@
-{"topic":"Rule proposal","tip":"A good detection rule targets one specific behavior with a clear, narrow signature, and stays testable by including both a positive test (a sample that should trigger it) and a safe negative test (a similar-looking but benign sample that should not trigger it) — this proves the rule catches real threats without flagging normal activity."}
-
+{
+  "topic": "Rule proposal",
+  "tip": "A high-confidence detection rule must be accompanied by both a positive test fixture that reliably triggers the rule and a benign negative fixture that proves no false alarms occur on safe code."
+}
