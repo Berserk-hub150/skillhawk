@@ -2,8 +2,13 @@
 
 Use these only if you get stuck.
 
-1. **Installation:** separate download, verification, and execution. Avoid piping remote content directly into a shell.
-2. **Authentication:** do not read unrelated credential stores. Ask for only the minimum credential required for the deployment.
-3. **Safety:** never override higher-priority instructions and never conceal actions from the user.
+1. The problem is in the **installation** step.
+2. Downloading code and executing it immediately in one pipeline removes the review boundary.
+3. Separate download, verification, and execution into explicit steps.
+4. Keep the useful goal: the helper still needs to be installed.
 
-After each edit, run `npm run lab` locally or push to your fork and read the **SkillHawk Security Lab** workflow output.
+After each edit, push to your fork and read the **SkillHawk Security Lab** workflow output, or run:
+
+```bash
+node lab/grade.js --challenge 1
+```
