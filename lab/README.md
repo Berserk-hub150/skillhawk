@@ -1,91 +1,131 @@
-# SkillHawk Security Lab
+# SkillHawk Security Lab v2
 
-A browser-first security challenge for learning how to review AI Agent Skills safely.
+A browser-first AI Agent Security challenge ladder built around a real static-analysis scanner.
 
-The lab starts with an intentionally unsafe `SKILL.md`. Your job is to use SkillHawk's findings to rewrite the dangerous instructions without deleting the useful purpose of the skill.
+**Fork → fix one unsafe `SKILL.md` → push → GitHub Actions grades it → progress is stored in your fork.**
 
-## Challenge 01 — Repair a dangerous deployment skill
+No local setup is required for the core path.
 
-**Goal:** make `lab/challenge-01/SKILL.md` pass SkillHawk with **zero findings** while preserving the required sections and useful deployment intent.
+## Start in under 60 seconds
 
-### Fast path — no local setup
-
-1. **Fork this repository**: https://github.com/Berserk-hub150/skillhawk/fork
-2. Open the **Actions** tab in your fork and enable workflows if GitHub asks you to.
-3. In your fork, open `lab/challenge-01/SKILL.md` and click the pencil icon.
-4. Find the unsafe instructions. Rewrite them into safe, explicit alternatives.
-5. Commit the file directly to your fork.
+1. **Fork SkillHawk:** https://github.com/Berserk-hub150/skillhawk/fork
+2. Open your fork and enable **Actions** if GitHub asks you to.
+3. Open `lab/challenge-01/SKILL.md`.
+4. Click the pencil icon and rewrite the unsafe instruction.
+5. Commit directly to your fork.
 6. Open **Actions → SkillHawk Security Lab**.
-7. When the run is green, download the **skillhawk-lab-certificate** artifact from the workflow run.
+7. If the level passes, your progress advances to the next level.
 
-The workflow runs automatically when you push a change under `lab/`.
+The workflow grades only the core challenge files you changed, then rebuilds the full progress dashboard.
 
-### Local path
+## 10-level ladder
+
+| Level | Difficulty | Focus |
+|---:|---|---|
+| 1 | Beginner | Remote install chain |
+| 2 | Beginner | Credential scavenging |
+| 3 | Beginner | Destructive cleanup |
+| 4 | Intermediate | Persistence / autostart |
+| 5 | Intermediate | Privilege escalation |
+| 6 | Intermediate | Silent outbound upload |
+| 7 | Intermediate | World-writable permissions |
+| 8 | Advanced | Prompt-injection instructions |
+| 9 | Advanced | Dynamic shell execution |
+| 10 | Advanced | Unpinned package execution |
+
+Each level starts intentionally unsafe. Preserve its useful purpose and required headings while replacing the dangerous instruction with a safer alternative.
+
+## Progress lives with your fork
+
+`lab/progress.json` is a deterministic progress snapshot generated from the actual challenge files in your fork.
+
+A successful level run attempts to commit the updated snapshot back to your fork automatically. If your fork does not allow workflow write access, the same progress file is still available in the workflow artifact.
+
+The workflow summary shows a ladder like:
+
+```text
+Level 1  ✅ Completed
+Level 2  ✅ Completed
+Level 3  ▶️ Current
+Level 4  🔒 Locked
+...
+Overall  2/10
+```
+
+Levels count as completed in order, so solving a later file does not skip an unfinished earlier level.
+
+## Completion badge
+
+At **10/10**, the workflow generates:
+
+- `skillhawk-defender.txt` — completion record;
+- `skillhawk-defender.svg` — shareable visual badge;
+- `skillhawk-defender.md` — Markdown completion card;
+- `progress.json`, `progress.md`, and `progress.svg`.
+
+These files are published in the `skillhawk-lab-progress` GitHub Actions artifact.
+
+The badge is an **educational completion artifact**, not a professional certification or security credential.
+
+## Hall of Defenders
+
+After completing all 10 levels, open a tiny PR to add yourself to [`defenders.json`](defenders.json).
+
+See **[Hall of Defenders instructions](DEFENDERS.md)**.
+
+The registry validator checks username format, duplicate entries, date format, and that your evidence URL points to a SkillHawk Actions run in your fork.
+
+## Weekly bonus challenge
+
+Returning fork owners can also solve the **[current weekly challenge](weekly/README.md)**.
+
+It does not affect the 10-level core ladder. It exists to give fork owners a reason to sync their fork and come back for a fresh short exercise.
+
+## Local path
+
+Clone your fork:
 
 ```bash
 git clone https://github.com/YOUR-USERNAME/skillhawk.git
 cd skillhawk
-npm run lab
 ```
 
-The initial template is supposed to fail. Edit:
-
-```text
-lab/challenge-01/SKILL.md
-```
-
-and rerun:
+Show your current level and findings:
 
 ```bash
 npm run lab
 ```
 
-until you see:
+Grade one level directly:
 
-```text
-SkillHawk Security Lab: PASSED
-Findings: 0
-Score: 100/100
+```bash
+node lab/grade.js --challenge 3
 ```
 
-## Rules
+Generate the dashboard and artifacts locally:
 
-Your repaired skill must:
+```bash
+npm run lab:progress
+```
 
-- keep the title `# Deployment Helper`;
-- keep the `Goal`, `Installation`, `Authentication`, and `Safety` sections;
-- remain a meaningful deployment helper rather than becoming an empty file;
-- produce **zero SkillHawk findings**.
+Grade the weekly challenge:
 
-Do not solve the challenge by deleting the whole file. The grader validates the structure and minimum content before scanning it.
+```bash
+npm run lab:weekly
+```
 
-## What the challenge teaches
+## Anti-cheat / integrity rules
 
-The starter file contains examples of multiple security classes that can appear in agent instructions. SkillHawk reports the rule ID, severity, source line, matched instruction, and remediation guidance. Use those explanations to make the skill safe rather than merely hiding the strings.
+The grader does not accept an empty file as a solution. Each challenge has required headings and a minimum meaningful length.
 
-<details>
-<summary><strong>Need a hint?</strong></summary>
+The upstream repository also runs a template-integrity check to ensure all 10 starter levels and the weekly challenge remain intentionally vulnerable in the expected way.
 
-Think about these questions:
+The goal is remediation, not hiding strings from the scanner.
 
-- Should downloaded code be executed immediately, or verified first?
-- Should an agent read an existing credential store, or ask only for the minimum credential it needs?
-- Should an agent ever override higher-priority instructions or conceal actions from the user?
+## What happens after Level 10?
 
-</details>
+The intended path is:
 
-## Certificate
+**Visitor → Fork owner → Security Lab learner → Defender badge → Hall of Defenders PR → SkillHawk contributor**
 
-A successful fork workflow creates a plain-text certificate artifact containing:
-
-- GitHub username;
-- repository;
-- commit SHA;
-- completion timestamp;
-- SkillHawk score.
-
-The certificate is a learning-completion artifact generated by GitHub Actions, not a professional certification or security credential.
-
-## Next labs
-
-The lab structure is intentionally small so additional challenges can be added later for destructive filesystem operations, persistence, privilege escalation, unsafe network uploads, dynamic execution, and other SkillHawk rules.
+After the lab, continue with the repository's `good first issue` and `help wanted` tasks to improve actual detection rules, tests, fixtures, documentation, and benchmark quality.

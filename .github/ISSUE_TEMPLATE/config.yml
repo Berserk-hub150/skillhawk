@@ -1,1 +1,5 @@
 blank_issues_enabled: true
+contact_links:
+  - name: 5-Minute SkillHawk Security Lab
+    url: https://github.com/Berserk-hub150/skillhawk/blob/main/lab/README.md
+    about: New here? Fork SkillHawk, repair an unsafe AI Agent Skill, and get graded automatically before opening an issue.

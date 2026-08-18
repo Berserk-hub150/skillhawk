@@ -22,6 +22,7 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm test
       - run: npm run lab:template
+      - run: npm run lab:defenders
       - run: node src/cli.js scan examples/safe-skill --fail-on high --no-color
       - if: matrix.os == 'ubuntu-latest' && matrix.node == 24
         run: npm run benchmark

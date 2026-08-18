@@ -2,17 +2,19 @@
 
 Contributions are intentionally kept beginner-friendly.
 
-## Try the Security Lab first
+## Fastest path: Security Lab
 
-If you are new to SkillHawk, the fastest hands-on introduction is the browser-first [SkillHawk Security Lab](lab/README.md):
+New to SkillHawk? Start with the browser-first [SkillHawk Security Lab](lab/README.md):
 
 1. fork the repository;
-2. repair the intentionally unsafe `lab/challenge-01/SKILL.md`;
+2. repair `lab/challenge-01/SKILL.md` in the browser;
 3. push the change;
 4. let GitHub Actions grade it;
-5. reach 0 findings / 100 score and download the completion artifact.
+5. continue through the 10-level ladder;
+6. unlock the Defender completion artifact;
+7. optionally open a tiny PR to join the [Hall of Defenders](lab/DEFENDERS.md).
 
-No local setup is required for the lab.
+The core lab requires no local setup.
 
 ## Fast path for code contributions
 
@@ -29,5 +31,12 @@ No local setup is required for the lab.
 - Add MCP configuration fixtures.
 - Reduce false positives in an existing rule.
 - Improve terminal output or documentation.
+- Add a small Security Lab challenge or hint improvement.
 
 Rules live in `src/rules.js`; each rule has an ID, severity, title, remediation advice, and a regular expression. Keep rules narrow and explainable.
+
+## Micro-contributions
+
+If you prefer a 2–5 minute first PR, pick an open `good first issue` or `micro-contribution` task. These are intentionally small and should remain focused on one useful change.
+
+If you arrived through an issue and have never used SkillHawk before, the Security Lab is the quickest way to understand what the scanner reports before contributing code.

@@ -6,6 +6,10 @@ on:
     paths:
       - 'lab/**'
       - '.github/workflows/security-lab.yml'
+  pull_request:
+    paths:
+      - 'lab/**'
+      - '.github/workflows/security-lab.yml'
 
 permissions:
   contents: read
@@ -19,39 +23,99 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Verify the upstream challenge remains intentionally vulnerable
+      - name: Verify all starter challenges remain intentionally vulnerable
         run: node lab/grade.js --expect-vulnerable
+      - name: Validate Hall of Defenders registry
+        run: node lab/validate-defenders.js
 
   grade-fork:
     if: github.repository != 'Berserk-hub150/skillhawk'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - name: Grade repaired SKILL.md
-        run: node lab/grade.js --certificate lab-results/skillhawk-certificate.txt
-
-      - name: Publish completion certificate
-        uses: actions/upload-artifact@v4
-        with:
-          name: skillhawk-lab-certificate
-          path: lab-results/skillhawk-certificate.txt
-          if-no-files-found: error
-
-      - name: Add completion summary
+      - name: Grade changed core challenge
         shell: bash
         run: |
-          {
-            echo '## SkillHawk Security Lab passed'
-            echo
-            echo '**Challenge 01:** Repair a dangerous deployment skill'
-            echo
-            echo '- SkillHawk findings: **0**'
-            echo '- Security score: **100/100**'
-            echo '- Certificate artifact: **skillhawk-lab-certificate**'
-            echo
-            echo 'You repaired an intentionally unsafe AI Agent Skill using static-analysis feedback.'
-          } >> "$GITHUB_STEP_SUMMARY"
+          set -euo pipefail
+          files=''
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            before='${{ github.event.before }}'
+            if [[ -n "$before" ]] && git cat-file -e "$before^{commit}" 2>/dev/null; then
+              files="$(git diff --name-only "$before" "$GITHUB_SHA" -- 'lab/challenge-*/SKILL.md')"
+            elif git rev-parse HEAD^ >/dev/null 2>&1; then
+              files="$(git diff --name-only HEAD^ HEAD -- 'lab/challenge-*/SKILL.md')"
+            fi
+          fi
+
+          if [[ -z "$files" ]]; then
+            echo 'No core challenge file changed in this push.'
+            exit 0
+          fi
+
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            level="$(printf '%s' "$file" | sed -nE 's#lab/challenge-([0-9]+)/SKILL\.md#\1#p')"
+            level="$((10#$level))"
+            echo "Grading level $level from $file"
+            node lab/grade.js --challenge "$level"
+          done <<< "$files"
+
+      - name: Grade changed weekly challenge
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed=''
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            before='${{ github.event.before }}'
+            if [[ -n "$before" ]] && git cat-file -e "$before^{commit}" 2>/dev/null; then
+              changed="$(git diff --name-only "$before" "$GITHUB_SHA" -- 'lab/weekly/current/SKILL.md')"
+            elif git rev-parse HEAD^ >/dev/null 2>&1; then
+              changed="$(git diff --name-only HEAD^ HEAD -- 'lab/weekly/current/SKILL.md')"
+            fi
+          fi
+
+          if [[ -n "$changed" ]]; then
+            node lab/grade.js --weekly
+          else
+            echo 'Weekly challenge unchanged.'
+          fi
+
+      - name: Generate progress dashboard and completion artifacts
+        if: always()
+        run: node lab/grade.js --progress-only --write-progress lab/progress.json --artifacts lab-results
+
+      - name: Add progress to workflow summary
+        if: always()
+        shell: bash
+        run: cat lab-results/progress.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Persist progress in the fork
+        if: success() && github.event_name == 'push'
+        continue-on-error: true
+        shell: bash
+        run: |
+          git config user.name 'skillhawk-lab[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add lab/progress.json
+          if git diff --cached --quiet; then
+            echo 'Progress snapshot already up to date.'
+            exit 0
+          fi
+          git commit -m 'lab: update security challenge progress'
+          git push
+
+      - name: Publish lab progress and badges
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skillhawk-lab-progress
+          path: lab-results/
+          if-no-files-found: error

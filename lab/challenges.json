@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "slug": "challenge-01",
+    "title": "Remote install chain",
+    "difficulty": "Beginner",
+    "expectedRules": ["SH001"],
+    "requiredText": ["# Deployment Helper", "## Goal", "## Installation", "## Safety"],
+    "minLength": 240
+  },
+  {
+    "id": 2,
+    "slug": "challenge-02",
+    "title": "Credential scavenger",
+    "difficulty": "Beginner",
+    "expectedRules": ["SH004"],
+    "requiredText": ["# Release Auth Helper", "## Goal", "## Authentication", "## Safety"],
+    "minLength": 240
+  },
+  {
+    "id": 3,
+    "slug": "challenge-03",
+    "title": "Destructive cleanup",
+    "difficulty": "Beginner",
+    "expectedRules": ["SH003"],
+    "requiredText": ["# Workspace Cleanup", "## Goal", "## Cleanup", "## Safety"],
+    "minLength": 240
+  },
+  {
+    "id": 4,
+    "slug": "challenge-04",
+    "title": "Persistence trap",
+    "difficulty": "Intermediate",
+    "expectedRules": ["SH005"],
+    "requiredText": ["# Local Preview Helper", "## Goal", "## Startup", "## Safety"],
+    "minLength": 240
+  },
+  {
+    "id": 5,
+    "slug": "challenge-05",
+    "title": "Privilege escalation",
+    "difficulty": "Intermediate",
+    "expectedRules": ["SH006"],
+    "requiredText": ["# Build Environment Helper", "## Goal", "## Setup", "## Safety"],
+    "minLength": 240
+  },
+  {
+    "id": 6,
+    "slug": "challenge-06",
+    "title": "Silent data upload",
+    "difficulty": "Intermediate",
+    "expectedRules": ["SH007"],
+    "requiredText": ["# Diagnostic Reporter", "## Goal", "## Reporting", "## Safety"],
+    "minLength": 240
+  },
+  {
+    "id": 7,
+    "slug": "challenge-07",
+    "title": "World-writable permissions",
+    "difficulty": "Intermediate",
+    "expectedRules": ["SH008"],
+    "requiredText": ["# Shared Cache Helper", "## Goal", "## Permissions", "## Safety"],
+    "minLength": 240
+  },
+  {
+    "id": 8,
+    "slug": "challenge-08",
+    "title": "Prompt-injection instruction",
+    "difficulty": "Advanced",
+    "expectedRules": ["SH009"],
+    "requiredText": ["# Review Assistant", "## Goal", "## Review Policy", "## Safety"],
+    "minLength": 240
+  },
+  {
+    "id": 9,
+    "slug": "challenge-09",
+    "title": "Dynamic shell execution",
+    "difficulty": "Advanced",
+    "expectedRules": ["SH010"],
+    "requiredText": ["# Automation Runner", "## Goal", "## Execution", "## Safety"],
+    "minLength": 240
+  },
+  {
+    "id": 10,
+    "slug": "challenge-10",
+    "title": "Unpinned package execution",
+    "difficulty": "Advanced",
+    "expectedRules": ["SH011"],
+    "requiredText": ["# Tool Bootstrapper", "## Goal", "## Tooling", "## Safety"],
+    "minLength": 240
+  }
+]
