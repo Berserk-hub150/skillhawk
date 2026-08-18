@@ -2,7 +2,19 @@
 
 Contributions are intentionally kept beginner-friendly.
 
-## Fast path
+## Try the Security Lab first
+
+If you are new to SkillHawk, the fastest hands-on introduction is the browser-first [SkillHawk Security Lab](lab/README.md):
+
+1. fork the repository;
+2. repair the intentionally unsafe `lab/challenge-01/SKILL.md`;
+3. push the change;
+4. let GitHub Actions grade it;
+5. reach 0 findings / 100 score and download the completion artifact.
+
+No local setup is required for the lab.
+
+## Fast path for code contributions
 
 1. Fork the repository.
 2. Create a branch: `git switch -c fix/my-change`.

@@ -1,0 +1,57 @@
+name: SkillHawk Security Lab
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'lab/**'
+      - '.github/workflows/security-lab.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  template-integrity:
+    if: github.repository == 'Berserk-hub150/skillhawk'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify the upstream challenge remains intentionally vulnerable
+        run: node lab/grade.js --expect-vulnerable
+
+  grade-fork:
+    if: github.repository != 'Berserk-hub150/skillhawk'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Grade repaired SKILL.md
+        run: node lab/grade.js --certificate lab-results/skillhawk-certificate.txt
+
+      - name: Publish completion certificate
+        uses: actions/upload-artifact@v4
+        with:
+          name: skillhawk-lab-certificate
+          path: lab-results/skillhawk-certificate.txt
+          if-no-files-found: error
+
+      - name: Add completion summary
+        shell: bash
+        run: |
+          {
+            echo '## SkillHawk Security Lab passed'
+            echo
+            echo '**Challenge 01:** Repair a dangerous deployment skill'
+            echo
+            echo '- SkillHawk findings: **0**'
+            echo '- Security score: **100/100**'
+            echo '- Certificate artifact: **skillhawk-lab-certificate**'
+            echo
+            echo 'You repaired an intentionally unsafe AI Agent Skill using static-analysis feedback.'
+          } >> "$GITHUB_STEP_SUMMARY"
