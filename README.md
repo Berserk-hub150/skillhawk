@@ -34,6 +34,12 @@ No local setup is required for the challenge ladder.
 
 ⭐ **[Star SkillHawk](https://github.com/Berserk-hub150/skillhawk)** · 🛡️ **[Read the Security Lab](lab/README.md)**
 
+### 🎓 Teaching AI Security?
+
+**[Use SkillHawk in your class, club, CTF or workshop →](FOR-EDUCATORS.md)**
+
+<sub>Ready-to-run 30 / 60 / 90-minute lesson formats · browser-only core lab · automatic GitHub Actions grading · assessment rubric included.</sub>
+
 </div>
 
 ---
