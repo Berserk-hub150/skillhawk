@@ -10,7 +10,9 @@
     "test": "node --test",
     "scan": "node src/cli.js scan .",
     "demo": "node src/cli.js scan examples/unsafe-skill",
-    "benchmark": "node benchmark/run.js"
+    "benchmark": "node benchmark/run.js",
+    "lab": "node lab/grade.js",
+    "lab:template": "node lab/grade.js --expect-vulnerable"
   },
   "engines": {
     "node": ">=18"
