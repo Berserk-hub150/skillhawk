@@ -1,0 +1,4 @@
+{
+  "topic": "Finding title writing",
+  "tip": "State the specific component and vulnerability condition directly in the title (such as 'Unvalidated redirect parameter in auth callback') instead of using generic or sensationalized phrasing."
+}
