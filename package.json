@@ -12,7 +12,10 @@
     "demo": "node src/cli.js scan examples/unsafe-skill",
     "benchmark": "node benchmark/run.js",
     "lab": "node lab/grade.js",
-    "lab:template": "node lab/grade.js --expect-vulnerable"
+    "lab:template": "node lab/grade.js --expect-vulnerable",
+    "lab:progress": "node lab/grade.js --progress-only --write-progress lab/progress.json --artifacts lab-results",
+    "lab:weekly": "node lab/grade.js --weekly",
+    "lab:defenders": "node lab/validate-defenders.js"
   },
   "engines": {
     "node": ">=18"
