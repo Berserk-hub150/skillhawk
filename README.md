@@ -26,6 +26,12 @@
 
 No local setup is required for the challenge ladder.
 
+<a href="https://github.com/Berserk-hub150/skillhawk/fork">
+  <img src="assets/security-lab-demo.gif" alt="SkillHawk Security Lab demo showing fork, browser edit, GitHub Actions grading and challenge progress" width="700" />
+</a>
+
+<sub><strong>20-second flow:</strong> Fork → enable Actions → fix Level 1 → commit → watch your progress update. Click the demo to start your fork.</sub>
+
 ⭐ **[Star SkillHawk](https://github.com/Berserk-hub150/skillhawk)** · 🛡️ **[Read the Security Lab](lab/README.md)**
 
 </div>
@@ -37,7 +43,7 @@ No local setup is required for the challenge ladder.
 Every fork becomes the learner's own security workspace.
 
 1. **[Fork SkillHawk](https://github.com/Berserk-hub150/skillhawk/fork)**.
-2. Enable **Actions** in the fork if GitHub asks.
+2. Enable **Actions** in the fork before making the first challenge edit if GitHub asks.
 3. Open `lab/challenge-01/SKILL.md` and click the pencil icon.
 4. Rewrite the unsafe instruction without deleting the useful behavior.
 5. Commit to the fork.
