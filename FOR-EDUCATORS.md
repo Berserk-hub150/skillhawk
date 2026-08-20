@@ -8,6 +8,94 @@ No local development environment is required for the core lab.
 
 > SkillHawk is an educational static-analysis project. The Defender badge generated at completion is an educational completion artifact, not a professional certification or security credential.
 
+## Evaluate SkillHawk in 5 minutes
+
+If you are deciding whether SkillHawk fits a module, lab, club, CTF, or workshop, you can test the complete learner flow yourself without cloning the repository or installing anything.
+
+### 1. Fork
+
+Open:
+
+**https://github.com/Berserk-hub150/skillhawk/fork**
+
+Create the fork under your GitHub account.
+
+### 2. Enable GitHub Actions
+
+Open the **Actions** tab in your new fork.
+
+If GitHub shows the fork-workflow warning, click **I understand my workflows, go ahead and enable them**.
+
+### 3. Open Level 1
+
+In your fork, open:
+
+`lab/challenge-01/SKILL.md`
+
+The file contains an intentionally unsafe remote-install instruction. SkillHawk treats it as text for static analysis; the dangerous instruction is **not executed** by the lab.
+
+### 4. Repair it in the browser
+
+Click the pencil icon and preserve the deployment-helper goal while changing the unsafe installation approach so remote content is downloaded and reviewed or verified before any explicit execution.
+
+Do not remove the required headings or replace the exercise with an empty file.
+
+Commit the edit directly to your fork.
+
+### 5. Watch automatic grading
+
+Open:
+
+**Actions → SkillHawk Security Lab**
+
+A workflow should start automatically for the commit.
+
+Open the run and inspect the grading step and workflow summary.
+
+### 6. Confirm the result
+
+A successful Level 1 repair produces grading output equivalent to:
+
+```text
+PASSED — Remote install chain
+Findings: 0
+Score: 100/100
+```
+
+The workflow summary should then show:
+
+```text
+Level 1  ✅ Completed
+Level 2  ▶️ Current
+...
+Overall  1/10
+```
+
+At that point you have tested the same path students use:
+
+**Fork → enable Actions → inspect challenge → edit in browser → commit → automatic grading → visible progress.**
+
+### What this 5-minute test verifies
+
+- no local setup, package installation, API key, AI model, or Docker environment is required;
+- every learner works in an isolated fork they control;
+- challenge files are analyzed statically rather than executed;
+- a browser edit and commit are enough to trigger grading;
+- GitHub Actions gives immediate pass/fail feedback;
+- successful remediation advances sequential progress automatically.
+
+If the workflow does not start, the first thing to check is whether Actions were enabled in the fork. The troubleshooting section below covers the remaining common cases.
+
+## Student launch link
+
+For a class, the only link students need initially is:
+
+**https://github.com/Berserk-hub150/skillhawk/fork**
+
+Suggested launch instruction:
+
+> Fork SkillHawk, enable Actions if GitHub asks, open `lab/challenge-01/SKILL.md`, repair the unsafe instruction in the browser, commit it, then open **Actions → SkillHawk Security Lab** and follow the progress summary.
+
 ## Why use SkillHawk in a class or workshop?
 
 SkillHawk gives every learner an isolated repository they own and can modify without touching the upstream project.
@@ -192,7 +280,7 @@ Progress is sequential. A learner cannot skip an unfinished earlier level by edi
 
 Before the session:
 
-- open the fork link in a logged-out or test GitHub account;
+- run the **Evaluate SkillHawk in 5 minutes** flow above from a logged-out or test GitHub account;
 - confirm that the **Actions** enablement step is visible and understood;
 - decide how many levels students must complete;
 - decide whether students submit only workflow evidence or also a written explanation;
