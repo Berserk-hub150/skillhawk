@@ -19,7 +19,8 @@ jobs:
         with:
           script: |
             const issue = context.payload.issue;
-            const commenter = context.payload.comment.user.login;
+            const comment = context.payload.comment;
+            const commenter = comment.user.login;
             const labels = (issue.labels || []).map(label => label.name);
 
             if (!labels.includes('micro-contribution')) return;
@@ -44,9 +45,16 @@ jobs:
               assignees: [commenter]
             });
 
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: comment.id,
+              content: '+1'
+            });
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
-              body: `Assigned to @${commenter}. Create the file described above, open the PR, and link this issue with \`Closes #${issue.number}\`.`
+              body: `Assigned to @${commenter}. Create the file described above, open the PR, and link this issue with \`Closes #${issue.number}\`. The PR guard will validate the task automatically.`
             });
