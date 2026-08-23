@@ -27,6 +27,8 @@ Only unfinished tasks may be offered again. A task closed as completed is never 
 - `community-author-index.yml` periodically/backfill-indexes all historical PR authors in one consolidated file.
 - `community-contributor-ledger.yml` records unique merged micro-contributors.
 - `community-metrics.yml` stores a daily public snapshot of stars, forks, open tasks, and merged micro-contributions.
+- `community-backlog-maintenance.yml` audits unused inventory weekly; at five or fewer unused tasks it opens one maintenance issue requesting genuinely new catalog entries instead of resetting completed work.
+- `community-content-archive.yml` runs weekly and, at 100+ community JSON files, moves the oldest half into a content-preserving archive. Archived task IDs remain completed and are not reissued.
 
 ## Labels and categories
 
