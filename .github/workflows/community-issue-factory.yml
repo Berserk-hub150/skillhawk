@@ -8,6 +8,7 @@ on:
     types: [community_issue_tick]
 
 permissions:
+  actions: read
   contents: read
   issues: write
 
@@ -18,31 +19,45 @@ concurrency:
 jobs:
   create:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
 
       - name: Keep a bounded pool of real micro-contributions
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.COMMUNITY_AUTOMATION_TOKEN || github.token }}
           script: |
-            const fs = require('fs');
+            const { buildTasks } = require('./scripts/community/catalog.cjs');
+            const tasks = buildTasks();
+            const MAX_OPEN = 12;
 
-            const MAX_OPEN = 6;
-            const tasks = JSON.parse(fs.readFileSync('community/backlog/tasks.json', 'utf8'));
+            // If an external/manual dispatch already ran recently, the scheduled
+            // invocation acts only as a fallback and does not duplicate the work.
+            if (context.eventName === 'schedule') {
+              const { data: runs } = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'community-issue-factory.yml',
+                per_page: 30
+              });
+              const recentDispatch = (runs.workflow_runs || []).find(run =>
+                run.id !== context.runId &&
+                ['workflow_dispatch', 'repository_dispatch'].includes(run.event) &&
+                Date.now() - Date.parse(run.created_at) < 25 * 60 * 1000
+              );
+              if (recentDispatch) {
+                console.log(`Recent external/manual dispatch ${recentDispatch.id}; scheduled fallback skipped.`);
+                return;
+              }
+            }
 
             async function ensureLabel(name, color, description) {
               try {
                 await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name });
               } catch (e) {
                 if (e.status !== 404) throw e;
-                await github.rest.issues.createLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  name,
-                  color,
-                  description
-                });
+                await github.rest.issues.createLabel({ owner: context.repo.owner, repo: context.repo.repo, name, color, description });
               }
             }
 
@@ -64,10 +79,26 @@ jobs:
               return data.number;
             }
 
-            await ensureLabel('good first issue', '7057ff', 'Good for newcomers');
-            await ensureLabel('help wanted', '008672', 'Extra attention is needed');
-            await ensureLabel('micro-contribution', '0e8a16', 'Small browser-friendly contribution');
-            await ensureLabel('community', '1d76db', 'Community contribution opportunity');
+            const standardLabels = [
+              ['enhancement', 'a2eeef', 'New feature or improvement'],
+              ['help wanted', '008672', 'Extra attention is needed'],
+              ['good first issue', '7057ff', 'Good for newcomers'],
+              ['community', '1d76db', 'Community contribution opportunity'],
+              ['low hanging fruit', 'bfd4f2', 'Small, well-scoped contribution'],
+              ['up-for-grabs', '5319e7', 'Available for a contributor to claim'],
+              ['first-timers-only', 'fef2c0', 'Designed for first-time contributors'],
+              ['micro-contribution', '0e8a16', 'Small browser-friendly contribution'],
+              ['type: task', 'c5def5', 'Task-style issue'],
+              ['beginner-friendly', 'd4c5f9', 'Suitable for beginners'],
+              ['hacktoberfest', 'ff7518', 'Hacktoberfest contribution opportunity']
+            ];
+            for (const label of standardLabels) await ensureLabel(...label);
+
+            const categorySlugs = [...new Set(tasks.map(task => task.category))];
+            for (const category of categorySlugs) {
+              await ensureLabel(`category:${category}`, 'ededed', `Micro-contributions in ${category}`);
+            }
+
             const milestoneNumber = await ensureMilestone('Community Contributions');
 
             const { data: openSearch } = await github.rest.search.issuesAndPullRequests({
@@ -80,6 +111,9 @@ jobs:
               console.log(`Open micro-contribution pool already at ${openCount}/${MAX_OPEN}.`);
               return;
             }
+
+            const month = new Date().getUTCMonth() + 1;
+            const seasonalLabels = (month === 9 || month === 10) ? ['hacktoberfest'] : [];
 
             for (const task of tasks) {
               if (openCount >= MAX_OPEN) break;
@@ -95,41 +129,64 @@ jobs:
               const alreadyOpen = (history.items || []).some(issue => issue.state === 'open');
               if (completed || alreadyOpen) continue;
 
-              const payload = JSON.stringify({ topic: task.topic, tip: task.tip }, null, 2);
+              const payload = task.generated
+                ? JSON.stringify({ category: task.category, topic: task.topic, tip: 'REPLACE_ME' }, null, 2)
+                : JSON.stringify({ topic: task.topic, tip: task.tip }, null, 2);
+
+              const instructions = task.generated
+                ? [
+                    task.prompt,
+                    '',
+                    'Replace `REPLACE_ME` with your own 1–3 sentence tip. Keep it original, practical, and safe.'
+                  ]
+                : ['Add the prepared contributor note below.'];
+
               const title = `[Good First Issue] ${task.title} [${task.id}]`;
               const body = [
                 `<!-- skillhawk-task:${task.id} -->`,
+                '<!-- automated-by:skillhawk-community-factory -->',
                 `## ${task.title}`,
                 '',
-                '> **Browser-only · ~2 minutes · no local setup required**',
+                '> **Browser-only · 2–5 minutes · beginner-friendly · no local setup required**',
                 '',
                 '### Your task',
                 '',
-                `Create \`${task.file}\` with exactly this useful contributor note:`,
+                ...instructions,
+                '',
+                `Create \`${task.file}\`:`,
                 '',
                 '```json',
                 payload,
                 '```',
                 '',
-                '### Steps',
+                '### Fast path',
                 '',
-                '1. Fork SkillHawk if you do not already have a fork.',
-                `2. Create \`${task.file}\` from the GitHub web editor.`,
-                '3. Paste the JSON above.',
-                `4. Open a PR titled \`docs: add contributor note [${task.id}]\`.`,
-                '5. Link this issue with `Closes #<issue-number>`.',
+                '1. Comment on this issue to claim it automatically.',
+                '2. Fork SkillHawk if you do not already have a fork.',
+                `3. Create \`${task.file}\` in the GitHub web editor.`,
+                '4. Paste the JSON and replace any placeholder.',
+                `5. Open a PR titled \`docs: add community tip [${task.id}]\`.`,
+                '6. Link this issue with `Closes #<issue-number>`; the guard can repair the link if you forget it.',
                 '',
-                'The automation will validate the file and link the issue if the PR title contains the task ID.',
+                'The PR guard checks the allowed path and JSON automatically. Valid one-file tasks can use the fast merge path after CI passes.',
                 '',
-                'A star is appreciated if SkillHawk is useful to you, but it is never required to contribute.'
+                '> **Automation notice:** this issue was created by the SkillHawk Community Issue Factory. If SkillHawk is useful to you, a star is appreciated but never required.'
               ].join('\n');
+
+              const labels = [
+                'enhancement', 'help wanted', 'good first issue', 'community',
+                'low hanging fruit', 'up-for-grabs', 'first-timers-only',
+                'micro-contribution', 'type: task', 'beginner-friendly',
+                `category:${task.category}`,
+                ...seasonalLabels
+              ];
 
               const { data: created } = await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title,
                 body,
-                labels: ['good first issue', 'help wanted', 'micro-contribution', 'community'],
+                labels,
                 milestone: milestoneNumber
               });
 
@@ -137,9 +194,9 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: created.number,
-                body: '👋 **Up for grabs.** Comment to claim this task and the auto-assign workflow will assign it to you. The whole contribution can be completed from the browser.'
+                body: '👋 **Up for grabs.** Comment to claim this task. The auto-assign workflow will assign the first available contributor, and the whole contribution can be completed from the browser.'
               });
 
               openCount += 1;
-              console.log(`Created ${task.id}; pool=${openCount}/${MAX_OPEN}.`);
+              console.log(`Created ${task.id} (${task.category}); pool=${openCount}/${MAX_OPEN}.`);
             }
