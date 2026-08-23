@@ -16,12 +16,17 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
-      - name: Validate browser-only contributor-note PR
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Validate browser-only micro-contribution PR
         uses: actions/github-script@v7
         with:
           script: |
+            const { buildTasks } = require('./scripts/community/catalog.cjs');
             const pr = context.payload.pull_request;
             const prNumber = pr.number;
             const taskMatch = `${pr.title}\n${pr.body || ''}`.match(/\bMC-\d{3}\b/);
@@ -32,6 +37,9 @@ jobs:
             }
 
             const taskId = taskMatch[0];
+            const task = buildTasks().find(candidate => candidate.id === taskId);
+            const errors = [];
+            if (!task) errors.push(`Unknown SkillHawk micro-contribution task: ${taskId}.`);
 
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
@@ -41,40 +49,52 @@ jobs:
             });
 
             const relevant = files.filter(file => file.filename !== 'package-lock.json');
-            const errors = [];
-
             if (relevant.length !== 1) {
-              errors.push('A micro-contribution PR must change exactly one contributor-note file.');
+              errors.push('A micro-contribution PR must change exactly one contribution JSON file.');
             }
 
             const file = relevant[0];
-            if (file && !/^community\/micro-contributions\/contributor-notes\/[a-z0-9-]+\.json$/.test(file.filename)) {
-              errors.push('The changed file must be a JSON file in `community/micro-contributions/contributor-notes/`.');
+            if (file && task && file.filename !== task.file) {
+              errors.push(`This task must change only \`${task.file}\`.`);
+            }
+            if (file && !/^community\/micro-contributions\/[a-z0-9-]+\/[a-z0-9-]+\.json$/.test(file.filename)) {
+              errors.push('The changed file must be a JSON file inside one SkillHawk micro-contribution category.');
             }
 
-            if (file) {
-              const { data: contentFile } = await github.rest.repos.getContent({
-                owner: pr.head.repo.owner.login,
-                repo: pr.head.repo.name,
-                path: file.filename,
-                ref: pr.head.sha
-              });
-
+            if (file && task) {
               try {
+                const { data: contentFile } = await github.rest.repos.getContent({
+                  owner: pr.head.repo.owner.login,
+                  repo: pr.head.repo.name,
+                  path: file.filename,
+                  ref: pr.head.sha
+                });
                 const raw = Buffer.from(contentFile.content, 'base64').toString('utf8');
                 const parsed = JSON.parse(raw);
+
                 if (!parsed || typeof parsed.topic !== 'string' || typeof parsed.tip !== 'string') {
                   errors.push('JSON must contain string fields `topic` and `tip`.');
+                } else {
+                  const tip = parsed.tip.trim();
+                  if (task.generated) {
+                    if (parsed.category !== task.category) errors.push(`\`category\` must be \`${task.category}\`.`);
+                    if (parsed.topic !== task.topic) errors.push(`\`topic\` must remain \`${task.topic}\`.`);
+                    if (!tip || tip === 'REPLACE_ME') errors.push('Replace `REPLACE_ME` with an original tip.');
+                    if (tip.length < 40 || tip.length > 320) errors.push('The tip must be between 40 and 320 characters.');
+                  }
+                  if (/-----BEGIN [A-Z ]*PRIVATE KEY-----|\bgh[pousr]_[A-Za-z0-9_]{20,}\b|\bsk-[A-Za-z0-9_-]{20,}\b/.test(raw)) {
+                    errors.push('Do not include credentials, tokens, or private keys in community content.');
+                  }
                 }
               } catch (e) {
-                errors.push(`JSON is invalid: ${e.message}`);
+                errors.push(`JSON is invalid or unreadable: ${e.message}`);
               }
             }
 
             const issueMatch = (pr.body || '').match(/(?:closes|fixes|resolves)\s+#(\d+)/i);
             let issueNumber = issueMatch ? Number(issueMatch[1]) : null;
 
-            if (!issueNumber) {
+            if (!issueNumber && task) {
               const { data: matches } = await github.rest.search.issuesAndPullRequests({
                 q: `repo:${context.repo.owner}/${context.repo.repo} is:issue "${taskId}" in:title`,
                 per_page: 10
@@ -93,13 +113,11 @@ jobs:
               }
             }
 
-            if (!issueNumber) {
-              errors.push(`Could not find an open SkillHawk micro-contribution issue for ${taskId}.`);
-            }
+            if (!issueNumber) errors.push(`Could not find an open SkillHawk micro-contribution issue for ${taskId}.`);
 
             const marker = '<!-- community-pr-guard -->';
             const summary = errors.length === 0
-              ? `## ✅ Micro-contribution validation passed\n\n- one allowed JSON file\n- valid \`topic\` and \`tip\` fields\n- linked task: ${taskId}\n\nThe PR is eligible for the community fast path.\n\n${marker}`
+              ? `## ✅ Micro-contribution validation passed\n\n- exactly one allowed JSON file\n- task/category schema validated\n- content safety checks passed\n- linked task: ${taskId}\n\nThe PR is eligible for the community fast path after CI succeeds.\n\n${marker}`
               : `## ❌ Micro-contribution validation failed\n\n${errors.map(error => `- ${error}`).join('\n')}\n\nFix the items above and push again.\n\n${marker}`;
 
             const { data: comments } = await github.rest.issues.listComments({
@@ -132,7 +150,6 @@ jobs:
 
             const desired = errors.length === 0 ? 'community-fast-path' : 'community-needs-fix';
             const undesired = errors.length === 0 ? 'community-needs-fix' : 'community-fast-path';
-
             for (const [name, color, description] of [
               ['community-fast-path', '0e8a16', 'Validated micro-contribution eligible for fast review'],
               ['community-needs-fix', 'd93f0b', 'Micro-contribution needs a small fix']
@@ -146,21 +163,10 @@ jobs:
             }
 
             try {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                name: undesired
-              });
+              await github.rest.issues.removeLabel({ owner: context.repo.owner, repo: context.repo.repo, issue_number: prNumber, name: undesired });
             } catch (e) {
               if (e.status !== 404) throw e;
             }
-
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              labels: [desired]
-            });
+            await github.rest.issues.addLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: prNumber, labels: [desired] });
 
             if (errors.length > 0) core.setFailed(errors.join('; '));
