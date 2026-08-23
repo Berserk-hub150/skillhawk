@@ -1,0 +1,121 @@
+name: Community Issue Factory
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: skillhawk-community-issue-factory
+  cancel-in-progress: false
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Keep a bounded pool of real micro-contributions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            const MAX_OPEN = 6;
+            const tasks = JSON.parse(fs.readFileSync('community/backlog/tasks.json', 'utf8'));
+
+            async function ensureLabel(name, color, description) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name
+                });
+              } catch (e) {
+                if (e.status !== 404) throw e;
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name,
+                  color,
+                  description
+                });
+              }
+            }
+
+            await ensureLabel('good first issue', '7057ff', 'Good for newcomers');
+            await ensureLabel('help wanted', '008672', 'Extra attention is needed');
+            await ensureLabel('micro-contribution', '0e8a16', 'Small browser-friendly contribution');
+            await ensureLabel('community', '1d76db', 'Community contribution opportunity');
+
+            const { data: openSearch } = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open label:"micro-contribution"`,
+              per_page: 100
+            });
+
+            let openCount = openSearch.total_count || 0;
+            if (openCount >= MAX_OPEN) {
+              console.log(`Open micro-contribution pool already at ${openCount}/${MAX_OPEN}.`);
+              return;
+            }
+
+            for (const task of tasks) {
+              if (openCount >= MAX_OPEN) break;
+
+              const { data: history } = await github.rest.search.issuesAndPullRequests({
+                q: `repo:${context.repo.owner}/${context.repo.repo} is:issue "${task.id}" in:title`,
+                per_page: 100
+              });
+
+              const completed = (history.items || []).some(issue =>
+                issue.state === 'closed' && issue.state_reason !== 'not_planned'
+              );
+              const alreadyOpen = (history.items || []).some(issue => issue.state === 'open');
+
+              if (completed || alreadyOpen) continue;
+
+              const payload = JSON.stringify({ topic: task.topic, tip: task.tip }, null, 2);
+              const title = `[Good First Issue] ${task.title} [${task.id}]`;
+              const body = [
+                `<!-- skillhawk-task:${task.id} -->`,
+                `## ${task.title}`,
+                '',
+                '> **Browser-only · ~2 minutes · no local setup required**',
+                '',
+                '### Your task',
+                '',
+                `Create \`${task.file}\` with exactly this useful contributor note:`,
+                '',
+                '```json',
+                payload,
+                '```',
+                '',
+                '### Steps',
+                '',
+                '1. Fork SkillHawk if you do not already have a fork.',
+                `2. Create \`${task.file}\` from the GitHub web editor.`,
+                '3. Paste the JSON above.',
+                `4. Open a PR titled \`docs: add contributor note [${task.id}]\`.`,
+                '5. Link this issue with `Closes #<issue-number>`.',
+                '',
+                'The automation will validate the file and link the issue if the PR title contains the task ID.',
+                '',
+                'A star is appreciated if SkillHawk is useful to you, but it is never required to contribute.'
+              ].join('\n');
+
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['good first issue', 'help wanted', 'micro-contribution', 'community']
+              });
+
+              openCount += 1;
+              console.log(`Created ${task.id}; pool=${openCount}/${MAX_OPEN}.`);
+            }

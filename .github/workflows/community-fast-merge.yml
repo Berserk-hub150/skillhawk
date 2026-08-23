@@ -1,0 +1,85 @@
+name: Community Fast Merge
+
+on:
+  workflow_run:
+    workflows: ['CI', 'Community PR Guard']
+    types: [completed]
+  pull_request_target:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Merge only validated micro-contributions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let prNumber = context.payload.pull_request?.number || null;
+
+            if (!prNumber && context.payload.workflow_run) {
+              const prs = context.payload.workflow_run.pull_requests || [];
+              if (prs.length > 0) prNumber = prs[0].number;
+            }
+
+            if (!prNumber) {
+              console.log('No PR associated with this event.');
+              return;
+            }
+
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            if (pr.state !== 'open' || pr.draft) return;
+
+            const labels = (pr.labels || []).map(label => label.name);
+            if (!labels.includes('community-fast-path')) return;
+
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+
+            const relevant = files.filter(file => file.filename !== 'package-lock.json');
+            if (
+              relevant.length !== 1 ||
+              !/^community\/micro-contributions\/contributor-notes\/[a-z0-9-]+\.json$/.test(relevant[0].filename)
+            ) {
+              console.log('PR no longer matches the safe fast-path shape.');
+              return;
+            }
+
+            const { data: combined } = await github.rest.repos.getCombinedStatusForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.head.sha
+            });
+
+            if (combined.state === 'failure' || combined.state === 'error') {
+              console.log(`Commit status is ${combined.state}; not merging.`);
+              return;
+            }
+
+            try {
+              const result = await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                merge_method: 'squash',
+                sha: pr.head.sha,
+                commit_title: `${pr.title} (#${prNumber})`
+              });
+              console.log(`Merge result: ${result.data.merged} ${result.data.message}`);
+            } catch (e) {
+              console.log(`Fast merge skipped: ${e.message}`);
+            }

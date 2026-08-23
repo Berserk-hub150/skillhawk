@@ -35,8 +35,17 @@ The core lab requires no local setup.
 
 Rules live in `src/rules.js`; each rule has an ID, severity, title, remediation advice, and a regular expression. Keep rules narrow and explainable.
 
-## Micro-contributions
+## Browser-only micro-contributions
 
-If you prefer a 2–5 minute first PR, pick an open `good first issue` or `micro-contribution` task. These are intentionally small and should remain focused on one useful change.
+SkillHawk automatically keeps a small pool of genuine `good first issue` + `micro-contribution` tasks available.
 
-If you arrived through an issue and have never used SkillHawk before, the Security Lab is the quickest way to understand what the scanner reports before contributing code.
+1. Open the [current micro-contributions](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue+is%3Aopen+label%3Amicro-contribution).
+2. Comment on an unassigned task to claim it automatically.
+3. Fork the repository if needed.
+4. Create the single JSON file shown in the issue directly from the GitHub web editor.
+5. Open a PR using the `MC-###` task ID and `Closes #...`.
+6. The community guard validates the file and issue link automatically.
+
+These tasks are designed to take about two minutes and require no local setup. A star is appreciated if the project is useful to you, but it is never a requirement for contribution.
+
+Read [Community Automation](docs/COMMUNITY_AUTOMATION.md) for the exact lifecycle and safeguards.

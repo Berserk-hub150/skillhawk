@@ -1,0 +1,55 @@
+name: Community Contributor Ledger
+
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: community-contributor-ledger
+  cancel-in-progress: false
+
+jobs:
+  record:
+    if: ${{ github.event.pull_request.merged == true && contains(github.event.pull_request.title, 'MC-') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Record unique contributor
+        env:
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = 'community/backlog/contributors.json';
+          const data = JSON.parse(fs.readFileSync(path, 'utf8'));
+          data.contributors ||= [];
+          const login = process.env.AUTHOR;
+          if (!data.contributors.some(entry => entry.login.toLowerCase() === login.toLowerCase())) {
+            data.contributors.push({
+              login,
+              firstMergedPR: Number(process.env.PR_NUMBER)
+            });
+            data.contributors.sort((a, b) => a.login.localeCompare(b.login));
+            fs.writeFileSync(path, JSON.stringify(data, null, 2) + '\n');
+          }
+          NODE
+
+      - name: Commit ledger if changed
+        run: |
+          if git diff --quiet community/backlog/contributors.json; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add community/backlog/contributors.json
+          git commit -m "chore(community): record contributor"
+          git pull --rebase origin main
+          git push origin HEAD:main
