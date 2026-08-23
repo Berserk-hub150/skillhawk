@@ -89,9 +89,9 @@ jobs:
             const relevant = files.filter(file => file.filename !== 'package-lock.json');
             if (
               relevant.length !== 1 ||
-              !/^community\/micro-contributions\/contributor-notes\/[a-z0-9-]+\.json$/.test(relevant[0].filename)
+              !/^community\/micro-contributions\/[a-z0-9-]+\/[a-z0-9-]+\.json$/.test(relevant[0].filename)
             ) {
-              console.log('PR no longer matches the safe fast-path shape.');
+              console.log('PR no longer matches the safe categorized fast-path shape.');
               return;
             }
 
