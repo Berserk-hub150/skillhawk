@@ -1,0 +1,82 @@
+name: Community Backlog Maintenance
+
+on:
+  schedule:
+    - cron: '15 3 * * 0'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [community_backlog_audit]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: community-backlog-maintenance
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Audit remaining unique tasks
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { buildTasks } = require('./scripts/community/catalog.cjs');
+            const tasks = buildTasks();
+            const known = new Set(tasks.map(task => task.id));
+
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              labels: 'micro-contribution',
+              per_page: 100
+            });
+
+            const completed = new Set();
+            const open = new Set();
+            for (const issue of issues) {
+              if (issue.pull_request) continue;
+              const match = issue.title.match(/\bMC-\d{3}\b/);
+              if (!match || !known.has(match[0])) continue;
+              if (issue.state === 'open') open.add(match[0]);
+              else if (issue.state_reason !== 'not_planned') completed.add(match[0]);
+            }
+
+            const available = tasks.filter(task => !completed.has(task.id) && !open.has(task.id));
+            console.log(`Inventory=${tasks.length}; completed=${completed.size}; open=${open.size}; available=${available.length}`);
+
+            if (available.length > 5) return;
+
+            const label = 'community-maintenance';
+            try {
+              await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name: label });
+            } catch (e) {
+              if (e.status !== 404) throw e;
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label,
+                color: 'fbca04',
+                description: 'Maintenance of the real community contribution inventory'
+              });
+            }
+
+            const { data: existing } = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open label:"${label}" "Community backlog needs new unique tasks" in:title`,
+              per_page: 10
+            });
+            if (existing.total_count > 0) return;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Community backlog needs new unique tasks',
+              labels: [label],
+              body: `Only ${available.length} unused community tasks remain. Add genuinely new categories/angles to \`community/backlog/catalog.json\` instead of resetting completed tasks.\n\nCurrent inventory: ${tasks.length}\nCompleted: ${completed.size}\nOpen: ${open.size}\nUnused: ${available.length}`
+            });
