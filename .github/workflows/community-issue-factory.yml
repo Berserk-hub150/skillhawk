@@ -2,7 +2,7 @@ name: Community Issue Factory
 
 on:
   schedule:
-    - cron: '17 * * * *'
+    - cron: '*/17 * * * *'
   workflow_dispatch:
   repository_dispatch:
     types: [community_issue_tick]
