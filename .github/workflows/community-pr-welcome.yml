@@ -1,0 +1,26 @@
+name: Community PR Welcome
+
+on:
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  welcome:
+    if: ${{ contains(github.event.pull_request.title, 'MC-') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Welcome micro-contributors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: `Thanks @${pr.user.login} for contributing to SkillHawk. The community guard will check the JSON shape, allowed path, and linked task automatically. If it passes, this tiny contribution is eligible for the fast review path.`
+            });

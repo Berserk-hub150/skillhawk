@@ -1,0 +1,78 @@
+name: Community Stale Requeue
+
+on:
+  schedule:
+    - cron: '43 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Close abandoned tasks so unfinished work can be offered again
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const now = Date.now();
+            const UNASSIGNED_MS = 72 * 60 * 60 * 1000;
+            const ASSIGNED_MS = 7 * 24 * 60 * 60 * 1000;
+            const WARNING_MS = 24 * 60 * 60 * 1000;
+
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'micro-contribution',
+              per_page: 100
+            });
+
+            for (const issue of issues) {
+              if (issue.pull_request) continue;
+
+              const updated = Date.parse(issue.updated_at);
+              const age = now - updated;
+              const assigned = (issue.assignees || []).length > 0;
+              const closeAfter = assigned ? ASSIGNED_MS : UNASSIGNED_MS;
+              const warningAt = Math.max(0, closeAfter - WARNING_MS);
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                per_page: 100
+              });
+              const warned = comments.some(comment =>
+                comment.user?.login === 'github-actions[bot]' &&
+                comment.body?.includes('<!-- skillhawk-stale-warning -->')
+              );
+
+              if (age >= closeAfter) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: '<!-- skillhawk-stale-close -->\nThis task was closed because it was inactive. It was **not completed**, so the issue factory may offer the same useful task again later.'
+                });
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed',
+                  state_reason: 'not_planned'
+                });
+                continue;
+              }
+
+              if (age >= warningAt && !warned) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: '<!-- skillhawk-stale-warning -->\nThis micro-contribution has been inactive. Comment if you are still working on it; otherwise it will be released for another contributor.'
+                });
+              }
+            }

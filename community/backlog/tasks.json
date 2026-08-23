@@ -1,0 +1,130 @@
+[
+  {
+    "id": "MC-001",
+    "category": "finding-title",
+    "title": "Write a clearer finding-title tip",
+    "file": "community/micro-contributions/contributor-notes/finding-title-clarity.json",
+    "topic": "Finding title clarity",
+    "tip": "Prefer short titles that name the risky behavior directly, without exaggerating severity or hiding the concrete action that triggered the finding."
+  },
+  {
+    "id": "MC-002",
+    "category": "evidence",
+    "title": "Add a minimal-evidence tip",
+    "file": "community/micro-contributions/contributor-notes/minimal-evidence.json",
+    "topic": "Minimal evidence",
+    "tip": "Show only the smallest excerpt needed to justify a finding, and redact unrelated secrets, tokens, paths, or personal data."
+  },
+  {
+    "id": "MC-003",
+    "category": "remediation",
+    "title": "Add an actionable-remediation tip",
+    "file": "community/micro-contributions/contributor-notes/actionable-remediation.json",
+    "topic": "Actionable remediation",
+    "tip": "Remediation should tell the user what safer behavior to use instead of only saying that the original behavior is dangerous."
+  },
+  {
+    "id": "MC-004",
+    "category": "false-positive",
+    "title": "Add a false-positive review tip",
+    "file": "community/micro-contributions/contributor-notes/false-positive-review.json",
+    "topic": "False-positive review",
+    "tip": "Before broadening a rule, add a safe counterexample that demonstrates which nearby behavior must remain allowed."
+  },
+  {
+    "id": "MC-005",
+    "category": "rule-design",
+    "title": "Add a narrow-rule design tip",
+    "file": "community/micro-contributions/contributor-notes/narrow-rule-design.json",
+    "topic": "Narrow rule design",
+    "tip": "Prefer a narrow detection pattern tied to a concrete risky action over a broad keyword match that catches benign documentation."
+  },
+  {
+    "id": "MC-006",
+    "category": "severity",
+    "title": "Add a severity calibration tip",
+    "file": "community/micro-contributions/contributor-notes/severity-calibration.json",
+    "topic": "Severity calibration",
+    "tip": "Choose severity from plausible impact and required preconditions, not from how alarming a matched keyword sounds in isolation."
+  },
+  {
+    "id": "MC-007",
+    "category": "fixtures",
+    "title": "Add a safe-fixture writing tip",
+    "file": "community/micro-contributions/contributor-notes/safe-fixture-writing.json",
+    "topic": "Safe fixture writing",
+    "tip": "A safe fixture should resemble the risky pattern closely enough to test precision while remaining clearly non-executable and harmless."
+  },
+  {
+    "id": "MC-008",
+    "category": "fixtures",
+    "title": "Add a suspicious-fixture writing tip",
+    "file": "community/micro-contributions/contributor-notes/suspicious-fixture-writing.json",
+    "topic": "Suspicious fixture writing",
+    "tip": "Synthetic suspicious fixtures should isolate one behavior at a time so a failing test points to a specific detection rule."
+  },
+  {
+    "id": "MC-009",
+    "category": "privacy",
+    "title": "Add a redaction tip",
+    "file": "community/micro-contributions/contributor-notes/redaction-guidance.json",
+    "topic": "Redaction guidance",
+    "tip": "Examples and reports should replace secrets and personal identifiers with obvious placeholders while preserving the structure needed to understand the finding."
+  },
+  {
+    "id": "MC-010",
+    "category": "cli",
+    "title": "Add a CLI-message clarity tip",
+    "file": "community/micro-contributions/contributor-notes/cli-message-clarity.json",
+    "topic": "CLI message clarity",
+    "tip": "CLI findings should lead with rule ID and severity, then show concise evidence and one concrete next action."
+  },
+  {
+    "id": "MC-011",
+    "category": "mcp",
+    "title": "Add an MCP least-privilege tip",
+    "file": "community/micro-contributions/contributor-notes/mcp-least-privilege.json",
+    "topic": "MCP least privilege",
+    "tip": "MCP examples should request only the tools and filesystem or network access needed for the demonstrated task."
+  },
+  {
+    "id": "MC-012",
+    "category": "skills",
+    "title": "Add a SKILL.md trust-boundary tip",
+    "file": "community/micro-contributions/contributor-notes/skill-trust-boundary.json",
+    "topic": "SKILL.md trust boundaries",
+    "tip": "Treat instructions that fetch remote content, access credentials, or execute commands as explicit trust-boundary crossings that deserve narrow review."
+  },
+  {
+    "id": "MC-013",
+    "category": "docs",
+    "title": "Add a secure-example writing tip",
+    "file": "community/micro-contributions/contributor-notes/secure-example-writing.json",
+    "topic": "Secure example writing",
+    "tip": "Documentation examples should demonstrate the safer alternative directly instead of reproducing a dangerous command that readers may copy."
+  },
+  {
+    "id": "MC-014",
+    "category": "tests",
+    "title": "Add a regression-test tip",
+    "file": "community/micro-contributions/contributor-notes/regression-test-writing.json",
+    "topic": "Regression test writing",
+    "tip": "Every regression test should describe the behavior that previously failed and assert the smallest output needed to prevent the bug from returning."
+  },
+  {
+    "id": "MC-015",
+    "category": "sarif",
+    "title": "Add a SARIF-result tip",
+    "file": "community/micro-contributions/contributor-notes/sarif-result-quality.json",
+    "topic": "SARIF result quality",
+    "tip": "SARIF results should keep rule identifiers stable and point to the most specific source location available so downstream tools can group findings reliably."
+  },
+  {
+    "id": "MC-016",
+    "category": "education",
+    "title": "Add an educational-warning tip",
+    "file": "community/micro-contributions/contributor-notes/educational-warning.json",
+    "topic": "Educational warnings",
+    "tip": "Educational security warnings should explain why a pattern is risky and what precondition makes it dangerous, rather than relying on fear-based wording."
+  }
+]
