@@ -99,11 +99,18 @@ export const RULES = [
     advice: 'Restrict file access to the smallest directory or glob the skill actually needs.',
     pattern: /(?:\bfind\s+[\/~.]\s+|Get-ChildItem\b[^\n]{0,140}-(?:Recurse|r)\b|glob\s*\([^\n]{0,100}\*\*)/i,
   },
-{
+  {
     id: 'SH013',
     severity: 'high',
     title: 'Remote content executed via Python exec/eval',
     advice: 'Never exec or eval content fetched over the network. Parse and validate it explicitly instead.',
     pattern: /(?:\bexec\s*\([^)]{0,200}requests\.(?:get|post|request)\s*\(|requests\.(?:get|post|request)\s*\([^\n]{0,200}\)[^\n]{0,60}\.(?:text|content)\b[\s\S]{0,150}\b(?:exec|eval)\s*\()/i,
+  },
+  {
+    id: 'SH014',
+    severity: 'critical',
+    title: 'PowerShell download piped to Invoke-Expression',
+    advice: 'Download the script first, verify its origin and integrity, then execute it explicitly.',
+    pattern: /\b(?:Invoke-WebRequest|iwr)\b[^\n|]{0,400}\|\s*(?:Invoke-Expression|iex)\b/i,
   }
 ];
