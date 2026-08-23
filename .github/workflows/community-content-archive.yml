@@ -1,0 +1,93 @@
+name: Community Content Archive
+
+on:
+  schedule:
+    - cron: '45 3 * * 0'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [community_archive_tick]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: community-content-archive
+  cancel-in-progress: true
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Archive the oldest half when content reaches 100 files
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const { execFileSync } = require('child_process');
+
+          const root = 'community/micro-contributions';
+          const archiveRoot = 'community/archive';
+
+          function walk(dir) {
+            if (!fs.existsSync(dir)) return [];
+            return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+              const full = path.join(dir, entry.name);
+              return entry.isDirectory() ? walk(full) : [full];
+            });
+          }
+
+          const files = walk(root).filter(file => file.endsWith('.json'));
+          if (files.length < 100) {
+            console.log(`Content count ${files.length}; archive threshold is 100.`);
+            process.exit(0);
+          }
+
+          const dated = files.map(file => {
+            let timestamp = 0;
+            try {
+              const value = execFileSync('git', ['log', '--follow', '--format=%ct', '--', file], { encoding: 'utf8' }).trim().split('\n').filter(Boolean).pop();
+              timestamp = Number(value || 0);
+            } catch {}
+            return { file, timestamp };
+          }).sort((a, b) => a.timestamp - b.timestamp || a.file.localeCompare(b.file));
+
+          const take = Math.floor(dated.length / 2);
+          const selected = dated.slice(0, take);
+          const stamp = new Date().toISOString().slice(0, 10);
+          fs.mkdirSync(archiveRoot, { recursive: true });
+
+          let archivePath = path.join(archiveRoot, `community-content-${stamp}.json`);
+          let suffix = 1;
+          while (fs.existsSync(archivePath)) {
+            archivePath = path.join(archiveRoot, `community-content-${stamp}-${suffix}.json`);
+            suffix += 1;
+          }
+
+          const entries = selected.map(({ file, timestamp }) => ({
+            source: file.replace(/\\/g, '/'),
+            gitTimestamp: timestamp,
+            content: JSON.parse(fs.readFileSync(file, 'utf8'))
+          }));
+
+          fs.writeFileSync(archivePath, JSON.stringify({ archivedAt: new Date().toISOString(), entries }, null, 2) + '\n');
+          for (const { file } of selected) fs.unlinkSync(file);
+          console.log(`Archived ${entries.length}/${files.length} files to ${archivePath}. Completed task IDs remain completed and are not reissued.`);
+          NODE
+
+      - name: Commit archive if content changed
+        run: |
+          if git diff --quiet -- community/micro-contributions community/archive; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A community/micro-contributions community/archive
+          git commit -m "chore(community): archive older community content"
+          git pull --rebase origin main
+          git push origin HEAD:main
