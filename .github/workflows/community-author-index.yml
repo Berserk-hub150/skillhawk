@@ -1,0 +1,68 @@
+name: Community PR Author Index
+
+on:
+  schedule:
+    - cron: '41 2 * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [community_authors_backfill]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: community-pr-author-index
+  cancel-in-progress: true
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Backfill all PR authors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              sort: 'created',
+              direction: 'asc',
+              per_page: 100
+            });
+
+            const firstSeen = new Map();
+            for (const pr of pulls) {
+              const login = pr.user?.login;
+              if (!login || /\[bot\]$/.test(login)) continue;
+              if (!firstSeen.has(login.toLowerCase())) {
+                firstSeen.set(login.toLowerCase(), {
+                  login,
+                  firstPR: pr.number,
+                  firstPRCreatedAt: pr.created_at
+                });
+              }
+            }
+
+            const authors = [...firstSeen.values()].sort((a, b) => a.login.localeCompare(b.login));
+            fs.writeFileSync('community/backlog/pr-authors.json', JSON.stringify({ authors }, null, 2) + '\n');
+            console.log(`Indexed ${authors.length} unique PR authors.`);
+
+      - name: Commit updated author index
+        run: |
+          if git diff --quiet community/backlog/pr-authors.json; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add community/backlog/pr-authors.json
+          git commit -m "chore(community): refresh PR author index"
+          git pull --rebase origin main
+          git push origin HEAD:main
