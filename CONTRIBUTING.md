@@ -16,6 +16,26 @@ New to SkillHawk? Start with the browser-first [SkillHawk Security Lab](lab/READ
 
 The core lab requires no local setup.
 
+## Browser-only micro-contributions
+
+SkillHawk has a **272-task community catalog** spanning 16 security/documentation categories. The issue factory runs about every 17 minutes and keeps a bounded set of newcomer tasks available instead of opening the whole catalog at once.
+
+1. Open the [current micro-contributions](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue+is%3Aopen+label%3Amicro-contribution).
+2. Pick an unassigned `good first issue` / `up-for-grabs` task.
+3. Comment on it; the auto-assign workflow claims it for you.
+4. Fork SkillHawk if needed.
+5. Create the single JSON file shown in the issue directly from the GitHub web editor.
+6. Replace `REPLACE_ME` with a short original tip when the task requests one.
+7. Open a PR using the `MC-###` task ID and `Closes #...`.
+8. The community guard validates the exact path, JSON schema, task link, and basic secret-safety checks automatically.
+9. When validation and CI pass, eligible one-file tasks can use the fast merge path.
+
+The generated categories cover finding titles, finding evidence, remediation, false positives, rule design, severity, safe fixtures, privacy, CLI UX, MCP, SKILL.md, documentation, testing, SARIF, education, and threat modeling.
+
+A star is appreciated if the project is useful to you, but it is never required for contribution or merge.
+
+Read [Community Automation](docs/COMMUNITY_AUTOMATION.md), [External Scheduler](docs/COMMUNITY_EXTERNAL_SCHEDULER.md), and [Community Discoverability Report](docs/COMMUNITY_DISCOVERY_REPORT.md) for the exact lifecycle.
+
 ## Fast path for code contributions
 
 1. Fork the repository.
@@ -24,7 +44,7 @@ The core lab requires no local setup.
 4. Add or update a test for behavior changes.
 5. Open a pull request with a short explanation and a before/after example.
 
-## Great first contributions
+## Great first code contributions
 
 - Add a detection rule with one positive and one negative test.
 - Improve Windows/PowerShell detection.
@@ -34,18 +54,3 @@ The core lab requires no local setup.
 - Add a small Security Lab challenge or hint improvement.
 
 Rules live in `src/rules.js`; each rule has an ID, severity, title, remediation advice, and a regular expression. Keep rules narrow and explainable.
-
-## Browser-only micro-contributions
-
-SkillHawk automatically keeps a small pool of genuine `good first issue` + `micro-contribution` tasks available.
-
-1. Open the [current micro-contributions](https://github.com/Berserk-hub150/skillhawk/issues?q=is%3Aissue+is%3Aopen+label%3Amicro-contribution).
-2. Comment on an unassigned task to claim it automatically.
-3. Fork the repository if needed.
-4. Create the single JSON file shown in the issue directly from the GitHub web editor.
-5. Open a PR using the `MC-###` task ID and `Closes #...`.
-6. The community guard validates the file and issue link automatically.
-
-These tasks are designed to take about two minutes and require no local setup. A star is appreciated if the project is useful to you, but it is never a requirement for contribution.
-
-Read [Community Automation](docs/COMMUNITY_AUTOMATION.md) for the exact lifecycle and safeguards.
