@@ -1,16 +1,23 @@
 # External Community Scheduler
 
-SkillHawk's primary community issue factory runs in GitHub Actions every 17 minutes. It also exposes a `repository_dispatch` entry point so an external scheduler can trigger the same factory without maintaining a second implementation.
+SkillHawk's primary community issue factory runs in GitHub Actions every 17 minutes. It also exposes `repository_dispatch` entry points so an external scheduler can trigger the same workflows without maintaining a second implementation.
 
-## Issue factory endpoint
-
-Send an authenticated GitHub REST request to:
+Send authenticated GitHub REST requests to:
 
 ```text
 POST /repos/Berserk-hub150/skillhawk/dispatches
 ```
 
-with:
+Supported event types:
+
+| Event type | Action |
+|---|---|
+| `community_issue_tick` | Fill the bounded Good First Issue pool from the 272-task catalog |
+| `community_authors_backfill` | Rebuild the historical PR-author index |
+| `community_backlog_audit` | Check how many genuinely unused tasks remain |
+| `community_archive_tick` | Run the 100-file community-content archive/compaction check |
+
+Example payload:
 
 ```json
 {
@@ -18,19 +25,7 @@ with:
 }
 ```
 
-The workflow `community-issue-factory.yml` receives that event. If a manual or external dispatch ran in the previous 25 minutes, the regular scheduled invocation skips itself and acts only as a fallback.
-
-## PR author backfill endpoint
-
-The same GitHub `repository_dispatch` endpoint can receive:
-
-```json
-{
-  "event_type": "community_authors_backfill"
-}
-```
-
-This invokes the PR author index workflow and rebuilds `community/backlog/pr-authors.json` from repository history.
+For the issue factory, if a manual or external dispatch ran in the previous 25 minutes, the regular scheduled invocation skips itself and acts only as a fallback.
 
 ## Authentication
 
@@ -40,4 +35,4 @@ The issue factory also supports an optional repository secret named `COMMUNITY_A
 
 ## Why GitHub's dispatch endpoint is enough
 
-A separate Vercel/Express endpoint is not required: GitHub already provides the authenticated HTTP entry point, while the workflow contains the actual business logic. This avoids duplicating secrets and scheduling code.
+A separate Vercel/Express endpoint is not required: GitHub already provides the authenticated HTTP entry point, while the workflows contain the actual business logic. This avoids duplicating secrets and scheduling code.
