@@ -1,0 +1,38 @@
+{
+  "categories": [
+    {"slug":"finding-titles","name":"Finding titles","focus":"clear, specific titles for security findings"},
+    {"slug":"evidence","name":"Finding evidence","focus":"minimal and useful evidence shown with a security finding"},
+    {"slug":"remediation","name":"Remediation guidance","focus":"concrete safer alternatives after a finding"},
+    {"slug":"false-positives","name":"False-positive resistance","focus":"keeping detections narrow enough to avoid benign matches"},
+    {"slug":"rule-design","name":"Rule design","focus":"explainable and maintainable static-analysis rules"},
+    {"slug":"severity","name":"Severity calibration","focus":"consistent severity based on impact and preconditions"},
+    {"slug":"safe-fixtures","name":"Safe fixtures","focus":"harmless fixtures that test precision without dangerous executable content"},
+    {"slug":"privacy","name":"Privacy and redaction","focus":"protecting secrets and personal data in examples and reports"},
+    {"slug":"cli","name":"CLI experience","focus":"clear and actionable command-line security output"},
+    {"slug":"mcp","name":"MCP guidance","focus":"least-privilege and review guidance for MCP configurations"},
+    {"slug":"skill-md","name":"SKILL.md guidance","focus":"trust boundaries and safe instructions in AI Agent Skills"},
+    {"slug":"documentation","name":"Security documentation","focus":"security documentation that is concise, accurate, and safe to copy"},
+    {"slug":"testing","name":"Testing guidance","focus":"small regression tests and reliable security test design"},
+    {"slug":"sarif","name":"SARIF quality","focus":"stable, precise SARIF output for downstream security tooling"},
+    {"slug":"education","name":"Security education","focus":"beginner-friendly explanations for workshops and the Security Lab"},
+    {"slug":"threat-model","name":"Threat modeling","focus":"clear assumptions, assets, trust boundaries, and realistic abuse cases"}
+  ],
+  "angles": [
+    {"slug":"clarity","name":"Clarity","prompt":"make the advice immediately understandable to a first-time contributor"},
+    {"slug":"safe-defaults","name":"Safe defaults","prompt":"prefer a safer default behavior without blocking legitimate use"},
+    {"slug":"least-privilege","name":"Least privilege","prompt":"minimize permissions, access, scope, or authority"},
+    {"slug":"edge-cases","name":"Edge cases","prompt":"call out one realistic edge case that reviewers should not miss"},
+    {"slug":"cross-platform","name":"Cross-platform behavior","prompt":"consider Windows, macOS, and Linux differences where relevant"},
+    {"slug":"evidence-quality","name":"Evidence quality","prompt":"show enough evidence to justify the recommendation without unnecessary data"},
+    {"slug":"remediation-quality","name":"Remediation quality","prompt":"give one concrete safer next action"},
+    {"slug":"testability","name":"Testability","prompt":"make the recommendation easy to verify with a focused test or check"},
+    {"slug":"privacy","name":"Privacy","prompt":"avoid leaking secrets, credentials, personal data, or unrelated local paths"},
+    {"slug":"beginner-explanation","name":"Beginner explanation","prompt":"explain the security reason in plain language without fear-based wording"},
+    {"slug":"failure-modes","name":"Failure modes","prompt":"describe what can go wrong when the recommendation is ignored"},
+    {"slug":"maintainability","name":"Maintainability","prompt":"keep future changes easy to review and understand"},
+    {"slug":"scope","name":"Scope","prompt":"keep the recommendation narrowly scoped to the concrete behavior being reviewed"},
+    {"slug":"naming","name":"Naming","prompt":"use precise names that describe behavior rather than vague danger words"},
+    {"slug":"examples","name":"Examples","prompt":"suggest a harmless, non-executable example that teaches the idea"},
+    {"slug":"review-checklist","name":"Review checklist","prompt":"turn the idea into one concise question a reviewer can ask"}
+  ]
+}
