@@ -7,20 +7,49 @@ on:
 permissions:
   contents: read
   issues: write
+  pull-requests: read
 
 jobs:
   welcome:
     if: ${{ contains(github.event.pull_request.title, 'MC-') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 4
     steps:
-      - name: Welcome micro-contributors
+      - name: Welcome and identify first-time contributors
         uses: actions/github-script@v7
         with:
           script: |
             const pr = context.payload.pull_request;
-            await github.rest.issues.createComment({
+            const author = pr.user.login;
+
+            const { data: authored } = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} is:pr author:${author}`,
+              per_page: 1
+            });
+            const firstTime = authored.total_count <= 1;
+
+            const body = firstTime
+              ? `🎉 Thanks @${author} — this appears to be your **first pull request to SkillHawk**. The community guard will check the task ID, allowed JSON path, schema, content safety, and issue link automatically. If it passes and CI succeeds, the PR is eligible for the fast merge path.`
+              : `Thanks @${author} for another SkillHawk contribution. The community guard will check the task ID, allowed JSON path, schema, content safety, and issue link automatically. If it passes and CI succeeds, the PR is eligible for the fast merge path.`;
+
+            const { data: comment } = await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr.number,
-              body: `Thanks @${pr.user.login} for contributing to SkillHawk. The community guard will check the JSON shape, allowed path, and linked task automatically. If it passes, this tiny contribution is eligible for the fast review path.`
+              body
+            });
+
+            // One deterministic acknowledgement, used as feedback rather than
+            // random engagement amplification.
+            await github.rest.reactions.createForIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              content: 'hooray'
+            });
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: comment.id,
+              content: 'heart'
             });
