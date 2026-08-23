@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
+  repository_dispatch:
+    types: [community_issue_tick]
 
 permissions:
   contents: read
@@ -31,11 +33,7 @@ jobs:
 
             async function ensureLabel(name, color, description) {
               try {
-                await github.rest.issues.getLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  name
-                });
+                await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name });
               } catch (e) {
                 if (e.status !== 404) throw e;
                 await github.rest.issues.createLabel({
@@ -48,10 +46,29 @@ jobs:
               }
             }
 
+            async function ensureMilestone(title) {
+              const milestones = await github.paginate(github.rest.issues.listMilestones, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                per_page: 100
+              });
+              const existing = milestones.find(m => m.title === title);
+              if (existing) return existing.number;
+              const { data } = await github.rest.issues.createMilestone({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                description: 'Small browser-first contributions for new SkillHawk contributors.'
+              });
+              return data.number;
+            }
+
             await ensureLabel('good first issue', '7057ff', 'Good for newcomers');
             await ensureLabel('help wanted', '008672', 'Extra attention is needed');
             await ensureLabel('micro-contribution', '0e8a16', 'Small browser-friendly contribution');
             await ensureLabel('community', '1d76db', 'Community contribution opportunity');
+            const milestoneNumber = await ensureMilestone('Community Contributions');
 
             const { data: openSearch } = await github.rest.search.issuesAndPullRequests({
               q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open label:"micro-contribution"`,
@@ -76,7 +93,6 @@ jobs:
                 issue.state === 'closed' && issue.state_reason !== 'not_planned'
               );
               const alreadyOpen = (history.items || []).some(issue => issue.state === 'open');
-
               if (completed || alreadyOpen) continue;
 
               const payload = JSON.stringify({ topic: task.topic, tip: task.tip }, null, 2);
@@ -108,12 +124,20 @@ jobs:
                 'A star is appreciated if SkillHawk is useful to you, but it is never required to contribute.'
               ].join('\n');
 
-              await github.rest.issues.create({
+              const { data: created } = await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title,
                 body,
-                labels: ['good first issue', 'help wanted', 'micro-contribution', 'community']
+                labels: ['good first issue', 'help wanted', 'micro-contribution', 'community'],
+                milestone: milestoneNumber
+              });
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: created.number,
+                body: '👋 **Up for grabs.** Comment to claim this task and the auto-assign workflow will assign it to you. The whole contribution can be completed from the browser.'
               });
 
               openCount += 1;
