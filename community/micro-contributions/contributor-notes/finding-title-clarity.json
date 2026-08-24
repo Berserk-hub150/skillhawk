@@ -1,0 +1,4 @@
+{
+  "topic": "Finding title clarity",
+  "tip": "Prefer short titles that name the risky behavior directly, without exaggerating severity or hiding the concrete action that triggered the finding."
+}
