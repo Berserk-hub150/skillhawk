@@ -1,0 +1,4 @@
+{
+  "topic": "Output encoding",
+  "tip": "When untrusted text is rendered into HTML, Markdown, terminals, or other structured output, encode or escape it for the destination context instead of treating it as trusted markup."
+}
