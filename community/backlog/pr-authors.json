@@ -1,3 +1,34 @@
 {
-  "authors": []
+  "authors": [
+    {
+      "login": "Berserk-hub150",
+      "firstPR": 46,
+      "firstPRCreatedAt": "2026-08-18T13:26:02Z"
+    },
+    {
+      "login": "mikemikimike",
+      "firstPR": 66,
+      "firstPRCreatedAt": "2026-08-23T15:58:30Z"
+    },
+    {
+      "login": "najuma223",
+      "firstPR": 37,
+      "firstPRCreatedAt": "2026-08-16T13:50:10Z"
+    },
+    {
+      "login": "Pawnityagi18",
+      "firstPR": 38,
+      "firstPRCreatedAt": "2026-08-16T14:45:00Z"
+    },
+    {
+      "login": "snowyukitty",
+      "firstPR": 45,
+      "firstPRCreatedAt": "2026-08-17T18:56:10Z"
+    },
+    {
+      "login": "tasodoufu",
+      "firstPR": 51,
+      "firstPRCreatedAt": "2026-08-20T10:52:55Z"
+    }
+  ]
 }
