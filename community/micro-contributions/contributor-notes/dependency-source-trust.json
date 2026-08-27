@@ -1,0 +1,4 @@
+{
+  "topic": "Dependency source trust",
+  "tip": "Review where a dependency comes from as well as its name: prefer expected registries or repositories and investigate unexpected source changes."
+}
