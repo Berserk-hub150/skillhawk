@@ -1,0 +1,4 @@
+{
+  "topic": "MCP least privilege",
+  "tip": "MCP examples should request only the tools and filesystem or network access needed for the demonstrated task."
+}
