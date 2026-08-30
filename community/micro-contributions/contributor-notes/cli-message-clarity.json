@@ -1,0 +1,5 @@
+{
+  "topic": "CLI message clarity",
+  "tip": "CLI findings should lead with rule ID and severity, then show concise evidence and one concrete next action.",
+  "contributed_by": "Mazen-2010-afk"
+}
