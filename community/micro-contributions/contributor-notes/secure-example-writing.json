@@ -1,0 +1,4 @@
+{
+  "topic": "Secure example writing",
+  "tip": "Documentation examples should demonstrate the safer alternative directly instead of reproducing a dangerous command that readers may copy."
+}
