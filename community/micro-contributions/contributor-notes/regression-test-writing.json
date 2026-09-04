@@ -1,0 +1,4 @@
+{
+  "topic": "Regression test writing",
+  "tip": "Every regression test should describe the behavior that previously failed and assert the smallest output needed to prevent the bug from returning."
+}
