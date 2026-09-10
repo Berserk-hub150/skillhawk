@@ -1,0 +1,4 @@
+{
+  "topic": "Path traversal review",
+  "tip": "Paths derived from untrusted input should be normalized and constrained to the intended workspace before any read or write operation is allowed."
+}
