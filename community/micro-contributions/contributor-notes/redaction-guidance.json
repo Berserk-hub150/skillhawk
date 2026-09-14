@@ -1,0 +1,4 @@
+{
+  "topic": "Redaction guidance",
+  "tip": "Examples and reports should replace secrets and personal identifiers with obvious placeholders while preserving the structure needed to understand the finding."
+}
