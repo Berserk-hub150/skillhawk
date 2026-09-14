@@ -1,0 +1,4 @@
+{
+  "topic": "SARIF result quality",
+  "tip": "SARIF results should keep rule identifiers stable and point to the most specific source location available so downstream tools can group findings reliably."
+}
