@@ -1,0 +1,4 @@
+{
+  "topic": "False-positive review",
+  "tip": "Before broadening a rule, add a safe counterexample that demonstrates which nearby behavior must remain allowed."
+}
