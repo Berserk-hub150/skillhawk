@@ -1,0 +1,1 @@
+{"topic":"Safe fixture writing","tip":"A safe fixture should resemble the risky pattern closely enough to test precision while remaining clearly non-executable and harmless."}
