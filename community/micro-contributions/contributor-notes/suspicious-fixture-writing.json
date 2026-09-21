@@ -1,0 +1,4 @@
+{
+  "topic": "Suspicious fixture writing",
+  "tip": "Synthetic suspicious fixtures should isolate one behavior at a time so a failing test points to a specific detection rule."
+}
