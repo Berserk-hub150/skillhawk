@@ -1,0 +1,4 @@
+{
+  "topic": "Educational warnings",
+  "tip": "Educational security warnings should explain why a pattern is risky and what precondition makes it dangerous, rather than relying on fear-based wording."
+}
