@@ -1,6 +1,10 @@
 {
   "contributors": [
     {
+      "login": "CjWrits",
+      "firstMergedPR": 1
+    },
+    {
       "login": "prateeekbuilds",
       "firstMergedPR": 90
     },
