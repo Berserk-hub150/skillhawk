@@ -1,0 +1,4 @@
+{
+  "topic": "Severity calibration",
+  "tip": "Choose severity from plausible impact and required preconditions, not from how alarming a matched keyword sounds in isolation."
+}
