@@ -1,0 +1,4 @@
+{
+  "topic": "Narrow rule design",
+  "tip": "Prefer a narrow detection pattern tied to a concrete risky action over a broad keyword match that catches benign documentation."
+}
