@@ -1,0 +1,4 @@
+{
+  "topic": "SKILL.md trust boundaries",
+  "tip": "Treat instructions that fetch remote content, access credentials, or execute commands as explicit trust-boundary crossings that deserve narrow review."
+}
