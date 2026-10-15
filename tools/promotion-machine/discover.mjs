@@ -3,8 +3,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
-const root = path.dirname(new URL(import.meta.url).pathname.replace(/^\/(?:[A-Za-z]:)/, m => m.slice(1)));
+const root = path.dirname(fileURLToPath(import.meta.url));
 const configPath = process.argv[2] || path.join(root, 'config.json');
 const config = JSON.parse(fs.readFileSync(fs.existsSync(configPath) ? configPath : path.join(root, 'config.example.json'), 'utf8'));
 const stateDir = path.join(root, '.local');
