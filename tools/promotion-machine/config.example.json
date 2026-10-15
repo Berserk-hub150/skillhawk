@@ -1,0 +1,33 @@
+{
+  "repo": "Berserk-hub150/skillhawk",
+  "minScore": 60,
+  "maxCandidatesPerRun": 30,
+  "maxApprovedPerBatch": 8,
+  "queries": [
+    "awesome agent skills security",
+    "awesome mcp security",
+    "ai agent security tools",
+    "prompt injection tools",
+    "agent supply chain security",
+    "SKILL.md security",
+    "Claude Code security resources",
+    "Codex security resources",
+    "Cursor security resources"
+  ],
+  "positiveSignals": [
+    "agent skills",
+    "skill.md",
+    "mcp security",
+    "agent security",
+    "prompt injection",
+    "supply chain security",
+    "security tools",
+    "tools and frameworks",
+    "awesome"
+  ],
+  "rejectSignals": [
+    "archived",
+    "deprecated",
+    "read only"
+  ]
+}
