@@ -68,10 +68,13 @@ function insertEntry(readme, entry) {
 
 fs.mkdirSync(stateDir, { recursive: true });
 const candidatesFile = path.join(stateDir, 'candidates.json');
-let candidate = null;
-if (fs.existsSync(candidatesFile)) {
-  const data = JSON.parse(fs.readFileSync(candidatesFile, 'utf8'));
-  candidate = (data.candidates || []).find(c => c.repo.toLowerCase() === target.toLowerCase()) || null;
+if (!fs.existsSync(candidatesFile)) {
+  throw new Error('No scored candidate report found. Run discover.mjs first.');
+}
+const candidateData = JSON.parse(fs.readFileSync(candidatesFile, 'utf8'));
+const candidate = (candidateData.candidates || []).find(c => c.repo.toLowerCase() === target.toLowerCase()) || null;
+if (!candidate) {
+  throw new Error('Target is not in the latest scored candidate report. Adjust discovery criteria and re-run discover instead of forcing outreach.');
 }
 
 const repo = api(`repos/${target}`);
@@ -110,6 +113,7 @@ if (guidelines) fs.writeFileSync(path.join(outDir, 'CONTRIBUTING.review.md'), gu
 
 const manifest = {
   generatedAt: new Date().toISOString(),
+  candidateReportGeneratedAt: candidateData.generatedAt,
   target,
   targetUrl: repo.html_url,
   defaultBranch: repo.default_branch,
@@ -117,8 +121,8 @@ const manifest = {
   readmeSha: readmeData.sha,
   section: insertion.section,
   title,
-  score: candidate?.score ?? null,
-  scoreReasons: candidate?.reasons ?? [],
+  score: candidate.score,
+  scoreReasons: candidate.reasons,
   guidelinesPath: guidelines?.path ?? null,
   files: {
     proposedReadme: 'README.proposed.md',
@@ -130,7 +134,7 @@ fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, nu
 
 console.log(`Prepared: ${target}`);
 console.log(`Section:  ${insertion.section}`);
-if (candidate) console.log(`Score:    ${candidate.score}`);
+console.log(`Score:    ${candidate.score}`);
 console.log(`Folder:   ${outDir}`);
 console.log('\nReview README.proposed.md and CONTRIBUTING.review.md (when present).');
-console.log(`Publishing is a separate one-target command with explicit confirmation.`);
+console.log('Publishing is a separate one-target command with explicit confirmation.');
