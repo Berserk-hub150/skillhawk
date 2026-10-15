@@ -1,0 +1,57 @@
+name: Promotion candidate discovery
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 8 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Discover relevant repositories
+        run: node tools/promotion-machine/discover.mjs
+
+      - name: Build readable report
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const input = JSON.parse(fs.readFileSync('tools/promotion-machine/.local/candidates.json', 'utf8'));
+          const lines = [
+            '# SkillHawk promotion candidates',
+            '',
+            `Generated: ${input.generatedAt}`,
+            '',
+            '| Score | Stars | Repository | Why |',
+            '|---:|---:|---|---|'
+          ];
+          for (const c of input.candidates || []) {
+            lines.push(`| ${c.score} | ${c.stars} | [${c.repo}](${c.url}) | ${c.reasons.join('; ').replaceAll('|', '\\|')} |`);
+          }
+          fs.writeFileSync('tools/promotion-machine/.local/candidates.md', lines.join('\n') + '\n');
+          NODE
+
+      - name: Upload candidate report
+        uses: actions/upload-artifact@v4
+        with:
+          name: skillhawk-promotion-candidates
+          path: |
+            tools/promotion-machine/.local/candidates.json
+            tools/promotion-machine/.local/candidates.md
+          retention-days: 14
