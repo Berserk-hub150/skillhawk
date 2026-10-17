@@ -112,5 +112,12 @@ export const RULES = [
     title: 'PowerShell download piped to Invoke-Expression',
     advice: 'Download the script first, verify its origin and integrity, then execute it explicitly.',
     pattern: /\b(?:Invoke-WebRequest|iwr)\b[^\n|]{0,400}\|\s*(?:Invoke-Expression|iex)\b/i,
+  },
+  {
+    id: 'SH015',
+    severity: 'critical',
+    title: 'Curl-style download piped to Invoke-Expression',
+    advice: 'Download the script first, verify its origin and integrity, then execute it explicitly. Never pipe curl/curl.exe/wget output straight into Invoke-Expression.',
+    pattern: /\b(?:curl(?:\.exe)?|wget(?:\.exe)?)\b[^\n|]{0,400}\|\s*(?:Invoke-Expression|iex)\b/i,
   }
 ];
