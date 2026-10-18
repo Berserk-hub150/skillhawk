@@ -1,0 +1,1 @@
+{"tip":"Build synthetic fixtures from obviously fake values (example.invalid domains, 0000-style tokens, REDACTED placeholders) and assert the rule triggers on the pattern shape — never on real credentials, private data, or live harmful payloads.","topic":"Safe fixture writing"}
