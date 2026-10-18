@@ -57,10 +57,11 @@ These are useful regression targets for future context-aware suppression.
 
 ## Known false negatives
 
-Two suspicious fixtures document coverage gaps:
+Suspicious fixtures document coverage gaps:
 
 - **M31:** PowerShell `iwr ... | iex` download-and-execute chain.
 - **M32:** Python `requests.get(...); exec(...)` remote execution chain.
+- **M33:** MCP configuration launching a shell with elevated privileges (`{"command":"sudo","args":["bash","./server.sh"]}`). Expected rule: `SH006`; observed result: no finding / clean (false negative) because command and arguments are separate JSON fields.
 
 These are intentionally retained so benchmark improvements represent real rule improvements rather than deleting difficult cases.
 
