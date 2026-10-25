@@ -137,7 +137,7 @@ test('SARIF output is valid SARIF 2.1.0 with rule metadata and locations', () =>
   }
   assert.deepEqual(
     driver.rules.map((rule) => rule.id).sort(),
-    ['SH001', 'SH002', 'SH003', 'SH004', 'SH005', 'SH006', 'SH007', 'SH008', 'SH009', 'SH010', 'SH011', 'SH012', 'SH013', 'SH014'].sort(),
+    ['SH001', 'SH002', 'SH003', 'SH004', 'SH005', 'SH006', 'SH007', 'SH008', 'SH009', 'SH010', 'SH011', 'SH012', 'SH013', 'SH014', 'SH015'].sort(),
   );
 
   assert.ok(sarif.runs[0].results.length > 0);
