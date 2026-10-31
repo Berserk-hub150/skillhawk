@@ -1,0 +1,4 @@
+{
+  "topic": "Severity labeling",
+  "tip": "Set severity from what the evidence actually shows and what an attacker could realistically do with it: a confirmed path to secret exfiltration is High, a suspicious pattern with no reachable impact is Low, and the label should read as a factual claim rather than an alarm."
+}
