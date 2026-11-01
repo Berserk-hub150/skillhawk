@@ -1,0 +1,5 @@
+{
+  "category": "finding-titles",
+  "topic": "Finding titles — Safe defaults",
+  "tip": "Use a clear, specific title that describes the security finding without exaggerating its severity or exposing sensitive details. Choose a safe, generic default when information is missing, while allowing authorized users to provide more specific titles when appropriate."
+}
