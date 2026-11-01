@@ -1,4 +1,4 @@
-import { RULES } from './rules.js';
+import { RULES, FILE_RULES } from './rules.js';
 
 const LEVEL = {
   critical: 'error',
@@ -15,7 +15,7 @@ const SECURITY_SEVERITY = {
 };
 
 export function toSarif(report) {
-  const rules = RULES.map((rule) => ({
+  const rules = [...RULES, ...FILE_RULES].map((rule) => ({
     id: rule.id,
     name: rule.id,
     shortDescription: { text: rule.title },

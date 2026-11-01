@@ -195,6 +195,7 @@ See **[BENCHMARK.md](BENCHMARK.md)** for methodology and limitations.
 | `SH012` | Low | Broad recursive file access |
 | `SH013` | High | Remote content executed via Python `exec` / `eval` |
 | `SH015` | Critical | Curl-style download piped to `Invoke-Expression` |
+| `SH016` | High | Compiled Python bytecode (`.pyc` / `.pyo`, `__pycache__/`) shipped with the skill |
 
 Every finding includes severity, rule ID, source file, source line, matched instruction and remediation guidance.
 
