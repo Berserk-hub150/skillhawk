@@ -3,7 +3,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { RULES, SEVERITY_RANK, SEVERITY_WEIGHT } from './rules.js';
+import { RULES, FILE_RULES, SEVERITY_RANK, SEVERITY_WEIGHT } from './rules.js';
 
 const execFileAsync = promisify(execFile);
 const MAX_FILE_BYTES = 1024 * 1024;
@@ -27,6 +27,27 @@ export function normalizeGitHubRepoUrl(value) {
 function shouldScanFile(filePath) {
   const base = path.basename(filePath).toLowerCase();
   return SPECIAL_FILES.has(base) || TEXT_EXTENSIONS.has(path.extname(base));
+}
+
+function matchFileRules(relativePath) {
+  return FILE_RULES.filter((rule) => rule.pathPattern.test(relativePath));
+}
+
+function shouldCollectFile(filePath, relativePath) {
+  return shouldScanFile(filePath) || matchFileRules(relativePath).length > 0;
+}
+
+export function scanFilePath(relativePath) {
+  const file = relativePath.replaceAll('\\', '/');
+  return matchFileRules(file).map((rule) => ({
+    ruleId: rule.id,
+    severity: rule.severity,
+    title: rule.title,
+    advice: rule.advice,
+    file,
+    line: 1,
+    snippet: path.posix.basename(file),
+  }));
 }
 
 function globToRegex(pattern) {
@@ -69,7 +90,7 @@ function isIgnored(relativePath, patterns) {
 
 async function collectFiles(target, ignorePatterns = []) {
   const stats = await fs.stat(target);
-  if (stats.isFile()) return shouldScanFile(target) ? [target] : [];
+  if (stats.isFile()) return shouldCollectFile(target, path.basename(target)) ? [target] : [];
 
   const result = [];
   async function walk(dir) {
@@ -83,7 +104,7 @@ async function collectFiles(target, ignorePatterns = []) {
       const relative = path.relative(target, full).replaceAll('\\', '/');
       if (isIgnored(relative, ignorePatterns)) continue;
       if (entry.isDirectory()) await walk(full);
-      else if (entry.isFile() && shouldScanFile(full)) result.push(full);
+      else if (entry.isFile() && shouldCollectFile(full, relative)) result.push(full);
     }
   }
   await walk(target);
@@ -150,14 +171,18 @@ async function scanLocalPath(localTarget, targetLabel = localTarget) {
   let skippedFiles = 0;
 
   for (const file of files) {
+    const relative = (path.relative(absolute, file) || path.basename(file)).replaceAll('\\', '/');
+    // Path-based findings never read the file, so they also cover binary and oversized files.
+    const pathFindings = scanFilePath(relative);
+    findings.push(...pathFindings);
+    if (!shouldScanFile(file)) continue;
     const stat = await fs.stat(file);
     if (stat.size > MAX_FILE_BYTES) {
-      skippedFiles += 1;
+      if (pathFindings.length === 0) skippedFiles += 1;
       continue;
     }
     const content = await fs.readFile(file, 'utf8');
-    const relative = path.relative(absolute, file) || path.basename(file);
-    findings.push(...scanTextContent(content, relative.replaceAll('\\', '/')));
+    findings.push(...scanTextContent(content, relative));
   }
 
   return summarize(findings, files.length - skippedFiles, skippedFiles, targetLabel);

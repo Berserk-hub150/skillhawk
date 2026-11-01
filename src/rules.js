@@ -121,3 +121,14 @@ export const RULES = [
     pattern: /\b(?:curl(?:\.exe)?|wget(?:\.exe)?)\b[^\n|]{0,400}\|\s*(?:Invoke-Expression|iex)\b/i,
   }
 ];
+
+// File-level rules: matched against the scanned file path instead of file contents.
+export const FILE_RULES = [
+  {
+    id: 'SH016',
+    severity: 'high',
+    title: 'Compiled Python bytecode shipped with the skill',
+    advice: 'Remove .pyc/.pyo files and __pycache__/ directories. Bytecode can differ from the reviewed .py source and Python may import it instead.',
+    pathPattern: /(?:^|\/)__pycache__\/|\.py[co]$/i,
+  },
+];
