@@ -1,0 +1,4 @@
+{
+  "topic": "SARIF result guidance",
+  "tip": "Every SARIF result should carry a stable ruleId, an exact result location, and a message that states the impact and the concrete fix, so reviewers can triage without re-running the scanner."
+}
