@@ -1,0 +1,5 @@
+
+{
+  "title": "Claude Code instruction review",
+  "description": "A developer uses SkillHawk to review Claude Code skills before installing them. The scan identifies risky commands, suspicious instructions, and possible credential access so the developer can inspect and fix security concerns."
+}
