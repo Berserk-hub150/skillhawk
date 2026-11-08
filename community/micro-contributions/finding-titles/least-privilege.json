@@ -1,0 +1,5 @@
+{
+  "category": "finding-titles",
+  "topic": "Finding titles — Least privilege",
+  "tip": "Name both the resource and the excess access in the title, such as \"Skill requests write access to the entire home directory\". A reader should see which permission to narrow without opening the details."
+}
