@@ -1,5 +1,5 @@
 {
   "category": "finding-titles",
   "topic": "Finding titles — Clarity",
-  "tip": "A clear finding title says what is wrong, where it is, and why it matters — for example, \"Hardcoded AWS secret in payment/config.py lets anyone take over the account\" beats \"Security issue found.\" Name the affected file or endpoint and the concrete risk so a first-time reader can triage the finding without opening the full report."
+  "tip": "A clear finding title says what is wrong, where it is, and why it matters: \"Hardcoded AWS secret in payment/config.py lets anyone take over the account\" beats \"Security issue found.\" Name the file or endpoint and the concrete risk so a first-time reader can triage without opening the full report."
 }
