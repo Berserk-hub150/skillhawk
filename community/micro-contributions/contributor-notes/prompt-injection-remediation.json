@@ -1,0 +1,1 @@
+{"tip":"When an agent instruction tries to override higher-priority instructions or hide actions from the user, rewrite it to keep the useful goal but make the behavior explicit: replace silent execution with a proposed action, a visible rationale, and a required user confirmation before proceeding.","topic":"Prompt-injection remediation"}
