@@ -199,3 +199,14 @@ test('CLI scan without --sarif keeps plain-text output and creates no file', asy
     await fs.rm(dir, { recursive: true, force: true });
   }
 });
+
+const hasSH011 = (text) =>
+  scanTextContent(text, 'SKILL.md').some((finding) => (finding.ruleId ?? finding.id) === 'SH011');
+
+test('SH011 flags an unpinned scoped npm package', () => {
+  assert.equal(hasSH011('npx @example/tool'), true);
+});
+
+test('SH011 does not flag a version-pinned scoped npm package', () => {
+  assert.equal(hasSH011('npx @example/tool@1.2.3'), false);
+});

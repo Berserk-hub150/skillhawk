@@ -89,7 +89,7 @@ export const RULES = [
     severity: 'low',
     title: 'Unpinned package execution',
     advice: 'Pin package versions or commit SHAs for reproducible agent tooling.',
-    pattern: /\bnpx\s+(?:-y\s+)?(?![^\s@]+@(?:\d|[a-f0-9]{7,40}\b))[@a-z0-9_.\/-]+\b/i,
+    pattern: /\bnpx\s+(?:-y\s+)?(?!@?[^\s@]+@(?:\d|[a-f0-9]{7,40}\b))[@a-z0-9_.\/-]+\b/i,
   },
   {
 
