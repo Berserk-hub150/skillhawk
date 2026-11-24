@@ -92,6 +92,76 @@ test('.skillhawkignore excludes known fixtures', async () => {
   }
 });
 
+test('compiled Python bytecode is reported instead of silently skipped', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'skillhawk-test-'));
+  try {
+    // Fixture bytes only: a fake .pyc header plus a payload string, never executed.
+    const bytecode = Buffer.concat([Buffer.from([0x6f, 0x0d, 0x0d, 0x0a]), Buffer.alloc(12), Buffer.from('os.system')]);
+    await fs.writeFile(path.join(dir, 'SKILL.md'), '# Formatter\nFormat JSON files in the current project.\n');
+    await fs.writeFile(path.join(dir, 'output.py'), 'def run():\n    return "ok"\n');
+    await fs.mkdir(path.join(dir, '__pycache__'));
+    await fs.writeFile(path.join(dir, '__pycache__', 'output.cpython-312.pyc'), bytecode);
+    await fs.writeFile(path.join(dir, 'legacy.pyo'), bytecode);
+    const report = await scanTarget(dir);
+    const files = report.findings.filter((item) => item.ruleId === 'SH016').map((item) => item.file).sort();
+    assert.deepEqual(files, ['__pycache__/output.cpython-312.pyc', 'legacy.pyo']);
+    assert.ok(report.findings.every((item) => item.ruleId === 'SH016' && item.severity === 'high' && item.line === 1));
+    assert.equal(report.risk, 'high');
+    assert.ok(report.score < 100);
+    assert.equal(meetsThreshold(report, 'high'), true);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('any file under __pycache__ is reported, including oversized ones', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'skillhawk-test-'));
+  try {
+    await fs.mkdir(path.join(dir, 'pkg', '__pycache__'), { recursive: true });
+    await fs.writeFile(path.join(dir, 'pkg', '__pycache__', 'helper.cpython-311.opt-1.bin'), Buffer.alloc(16));
+    await fs.writeFile(path.join(dir, 'pkg', '__pycache__', 'big.cpython-311.pyc'), Buffer.alloc(1024 * 1024 + 1));
+    const report = await scanTarget(dir);
+    const files = report.findings.filter((item) => item.ruleId === 'SH016').map((item) => item.file).sort();
+    assert.deepEqual(files, ['pkg/__pycache__/big.cpython-311.pyc', 'pkg/__pycache__/helper.cpython-311.opt-1.bin']);
+    assert.equal(report.skippedFiles, 0);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('a single .pyc file target is reported', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'skillhawk-test-'));
+  try {
+    const file = path.join(dir, 'module.pyc');
+    await fs.writeFile(file, Buffer.alloc(16));
+    const report = await scanTarget(file);
+    assert.equal(report.filesScanned, 1);
+    assert.ok(report.findings.some((item) => item.ruleId === 'SH016' && item.file === 'module.pyc'));
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('Python source files are not flagged as bytecode', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'skillhawk-test-'));
+  try {
+    await fs.writeFile(path.join(dir, 'pycache_notes.md'), '# Notes about __pycache__ handling\n');
+    await fs.writeFile(path.join(dir, 'tool.py'), 'print("ok")\n');
+    await fs.writeFile(path.join(dir, 'types.pyi'), 'def run() -> str: ...\n');
+    const report = await scanTarget(dir);
+    assert.equal(report.findings.some((item) => item.ruleId === 'SH016'), false);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('SARIF output declares SH016 for bytecode findings', () => {
+  const sarif = toSarif({ version: '0.2.0', findings: [] });
+  const rule = sarif.runs[0].tool.driver.rules.find((item) => item.id === 'SH016');
+  assert.ok(rule);
+  assert.equal(rule.defaultConfiguration.level, 'error');
+});
+
 test('normalizes GitHub repository URLs', () => {
   assert.equal(normalizeGitHubRepoUrl('https://github.com/owner/repo'), 'https://github.com/owner/repo.git');
   assert.equal(normalizeGitHubRepoUrl('https://github.com/owner/repo.git'), 'https://github.com/owner/repo.git');
@@ -137,7 +207,7 @@ test('SARIF output is valid SARIF 2.1.0 with rule metadata and locations', () =>
   }
   assert.deepEqual(
     driver.rules.map((rule) => rule.id).sort(),
-    ['SH001', 'SH002', 'SH003', 'SH004', 'SH005', 'SH006', 'SH007', 'SH008', 'SH009', 'SH010', 'SH011', 'SH012', 'SH013', 'SH014'].sort(),
+    ['SH001', 'SH002', 'SH003', 'SH004', 'SH005', 'SH006', 'SH007', 'SH008', 'SH009', 'SH010', 'SH011', 'SH012', 'SH013', 'SH014', 'SH015', 'SH016'].sort(),
   );
 
   assert.ok(sarif.runs[0].results.length > 0);
